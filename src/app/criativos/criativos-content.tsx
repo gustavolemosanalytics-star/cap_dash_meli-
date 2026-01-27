@@ -245,6 +245,7 @@ export function CriativosContent({ data }: CriativosContentProps) {
 
             <CreativeModal
                 creative={selectedCreative}
+                allData={data}
                 isOpen={selectedIndex !== null}
                 onClose={handleCloseModal}
                 onPrevious={handlePrevious}

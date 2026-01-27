@@ -13,9 +13,9 @@ export const metadata: Metadata = {
   description: "Dashboard moderno para acompanhamento de campanhas de marketing digital. Visualize métricas, funil de conversão e performance dos criativos.",
   keywords: ["dashboard", "marketing", "campanhas", "ads", "métricas", "ROAS", "CTR", "Meli Music"],
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: '/logo-somos.png',
+    shortcut: '/logo-somos.png',
+    apple: '/logo-somos.png',
   },
 };
 

@@ -70,6 +70,7 @@ export function CreativeGrid({ data, className }: CreativeGridProps) {
 
             <CreativeModal
                 creative={selectedCreative}
+                allData={data}
                 isOpen={selectedIndex !== null}
                 onClose={handleCloseModal}
                 onPrevious={handlePrevious}

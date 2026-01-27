@@ -24,7 +24,6 @@ import { PageLayout } from '@/components/layout/Sidebar';
 import { KPICard } from '@/components/ui/KPICard';
 import { TrapezoidFunnel } from '@/components/dashboard/ConversionFunnel';
 import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
-import { CampaignTable } from '@/components/dashboard/CampaignTable';
 import { PerformanceDemographics } from '@/components/dashboard/PerformanceDemographics';
 import { calculateKPIs, calculateFunnel, getUniqueCreatives } from '@/lib/sheets';
 
@@ -37,7 +36,44 @@ interface DashboardContentProps {
 // Smart Analysis Component with Creative Highlights
 function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: AggregatedKPIs }) {
     const insights = useMemo(() => {
-        const results: Array<{ type: 'success' | 'warning' | 'info', title: string, description: string }> = [];
+        const results: Array<{ type: 'success' | 'warning' | 'info', title: string, description: string, iconType?: string }> = [];
+
+        // 1. Peak Performance Day
+        const dailyPerformance = data.reduce((acc, item) => {
+            acc[item.date] = (acc[item.date] || 0) + item.action_values_omni_purchase;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const peakDate = Object.entries(dailyPerformance).sort((a, b) => b[1] - a[1])[0];
+
+        if (peakDate && peakDate[1] > 0) {
+            const date = parseDate(peakDate[0]);
+            results.push({
+                type: 'success',
+                title: 'Pico de Vendas',
+                description: `O melhor resultado foi em ${format(date, "dd 'de' MMM", { locale: ptBR })} com ${formatCurrency(peakDate[1])} em receita.`,
+                iconType: 'trend'
+            });
+        }
+
+        // 2. Global ROAS Analysis
+        if (kpis.roas > 0) {
+            if (kpis.roas >= 4) {
+                results.push({
+                    type: 'success',
+                    title: 'Eficiência Alta',
+                    description: `ROAS global de ${kpis.roas.toFixed(2)}x indica excelente retorno sobre investimento.`,
+                    iconType: 'trend'
+                });
+            } else if (kpis.roas < 1.5) {
+                results.push({
+                    type: 'warning',
+                    title: 'Atenção ao Retorno',
+                    description: `ROAS global de ${kpis.roas.toFixed(2)}x indica necessidade de otimização de custos.`,
+                    iconType: 'alert'
+                });
+            }
+        }
 
         // Get unique creatives
         const creatives = getUniqueCreatives(data);
@@ -55,9 +91,10 @@ function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: Aggrega
 
         if (topCreativeByRoas && topCreativeByRoas.roas > 0) {
             results.push({
-                type: 'success',
+                type: 'info',
                 title: 'Criativo Top ROAS',
-                description: `"${topCreativeByRoas.name.substring(0, 40)}${topCreativeByRoas.name.length > 40 ? '...' : ''}" com ROAS de ${topCreativeByRoas.roas.toFixed(2)}x`
+                description: `"${topCreativeByRoas.name.substring(0, 30)}${topCreativeByRoas.name.length > 30 ? '...' : ''}" lidera com ${topCreativeByRoas.roas.toFixed(2)}x`,
+                iconType: 'creative'
             });
         }
 
@@ -74,53 +111,22 @@ function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: Aggrega
         if (topCreativeByCtr && topCreativeByCtr.ctr > 0) {
             results.push({
                 type: 'info',
-                title: 'Melhor CTR',
-                description: `"${topCreativeByCtr.name.substring(0, 40)}${topCreativeByCtr.name.length > 40 ? '...' : ''}" com CTR de ${topCreativeByCtr.ctr.toFixed(2)}%`
-            });
-        }
-
-        // Creative with most conversions
-        const topCreativeByConversions = creatives
-            .map(c => ({
-                name: c.ad_name,
-                conversions: c.actions_offsite_conversion_fb_pixel_purchase,
-                revenue: c.action_values_omni_purchase
-            }))
-            .sort((a, b) => b.conversions - a.conversions)[0];
-
-        if (topCreativeByConversions && topCreativeByConversions.conversions > 0) {
-            results.push({
-                type: 'success',
-                title: 'Mais Conversões',
-                description: `"${topCreativeByConversions.name.substring(0, 40)}${topCreativeByConversions.name.length > 40 ? '...' : ''}" com ${formatNumber(topCreativeByConversions.conversions)} compras`
-            });
-        }
-
-        // Low performing creative warning
-        const lowPerformingCreative = creatives
-            .map(c => ({
-                name: c.ad_name,
-                roas: c.spend > 0 ? c.action_values_omni_purchase / c.spend : 0,
-                spend: c.spend
-            }))
-            .filter(c => c.spend > 500 && c.roas < 1)
-            .sort((a, b) => a.roas - b.roas)[0];
-
-        if (lowPerformingCreative) {
-            results.push({
-                type: 'warning',
-                title: 'Criativo a Otimizar',
-                description: `"${lowPerformingCreative.name.substring(0, 40)}${lowPerformingCreative.name.length > 40 ? '...' : ''}" com ROAS de ${lowPerformingCreative.roas.toFixed(2)}x precisa de atenção`
+                title: 'Melhor Engajamento',
+                description: `Maior CTR (${topCreativeByCtr.ctr.toFixed(2)}%) no criativo "${topCreativeByCtr.name.substring(0, 30)}..."`,
+                iconType: 'creative'
             });
         }
 
         return results.slice(0, 4);
-    }, [data]);
+    }, [data, kpis]);
 
-    const iconMap = {
+    const iconMap: Record<string, any> = {
         success: CheckCircle,
         warning: AlertCircle,
-        info: ImageIcon
+        info: ImageIcon,
+        trend: TrendingUp,
+        alert: AlertCircle,
+        creative: ImageIcon
     };
 
     const colorMap = {
@@ -136,11 +142,13 @@ function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: Aggrega
                     <Sparkles className="w-5 h-5 text-meli-blue" />
                 </div>
                 <h3 className="text-lg font-bold text-meli-text">Análise Inteligente</h3>
-                <span className="text-xs text-meli-text-secondary bg-gray-100 px-2 py-1 rounded-full ml-2">Destaques de Criativos</span>
+                <span className="text-xs text-meli-text-secondary bg-gray-100 px-2 py-1 rounded-full ml-auto sm:ml-2">Insights Automáticos</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {insights.map((insight, index) => {
-                    const Icon = iconMap[insight.type];
+                    // Determine icon based on iconType or fallback to type
+                    const Icon = insight.iconType ? iconMap[insight.iconType] : iconMap[insight.type];
+
                     return (
                         <motion.div
                             key={index}
@@ -148,16 +156,18 @@ function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: Aggrega
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
                             className={cn(
-                                'p-4 rounded-xl border',
+                                'p-4 rounded-xl border flex items-start gap-3 transition-shadow hover:shadow-md cursor-default',
                                 colorMap[insight.type]
                             )}
                         >
-                            <div className="flex items-start gap-3">
-                                <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                                <div>
-                                    <p className="font-semibold text-sm">{insight.title}</p>
-                                    <p className="text-xs mt-1 opacity-80">{insight.description}</p>
-                                </div>
+                            <div className="p-1.5 bg-white/60 rounded-lg backdrop-blur-sm">
+                                <Icon className="w-5 h-5 flex-shrink-0" />
+                            </div>
+                            <div>
+                                <p className="font-bold text-sm mb-0.5">{insight.title}</p>
+                                <p className="text-xs opacity-90 leading-relaxed font-medium">
+                                    {insight.description}
+                                </p>
                             </div>
                         </motion.div>
                     );
@@ -349,26 +359,15 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                     <PerformanceChart data={filteredData} height={350} />
                 </div>
 
-                {/* Bottom Section: Funnel (left), Table (middle/right), Demographics (bottom right) */}
-                <div className="grid grid-cols-12 gap-8">
-                    {/* Funnel on the Left (Column span 3) */}
-                    <div className="col-span-12 lg:col-span-3">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full">
-                            <TrapezoidFunnel steps={funnel} />
-                        </div>
+                {/* Bottom Section: Funnel (left) and Demographics (right) - symmetric layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Funnel on the Left */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full">
+                        <TrapezoidFunnel steps={funnel} />
                     </div>
 
-                    {/* Table and Demographics on the Right (Column span 9) */}
-                    <div className="col-span-12 lg:col-span-9 space-y-8">
-                        <div>
-                            <h3 className="text-lg font-bold text-meli-text mb-6">Detalhamento de Campanhas</h3>
-                            <CampaignTable data={filteredData} />
-                        </div>
-
-                        <div className="grid grid-cols-1">
-                            <PerformanceDemographics />
-                        </div>
-                    </div>
+                    {/* Demographics on the Right */}
+                    <PerformanceDemographics />
                 </div>
             </div>
         </PageLayout>

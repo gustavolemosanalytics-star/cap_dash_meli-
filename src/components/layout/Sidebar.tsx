@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import NextImage from 'next/image';
 import {
     LayoutDashboard,
     Megaphone,
-    Image,
+    Image as ImageIcon,
     GitBranch,
     Settings,
     ChevronRight,
@@ -18,40 +19,31 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
     { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { href: '/criativos', icon: Image, label: 'Criativos' },
+    { href: '/criativos', icon: ImageIcon, label: 'Criativos' },
 ];
 
-// Meli Logo component
-function MeliLogo({ expanded }: { expanded: boolean }) {
+// Logo component
+function Logo({ expanded }: { expanded: boolean }) {
     return (
         <div className={cn(
-            'flex items-center justify-center h-16 transition-all duration-300',
-            expanded ? 'px-4' : 'px-2'
+            'flex items-center justify-center h-20 transition-all duration-300',
+            expanded ? 'px-6' : 'px-2'
         )}>
             <motion.div
-                className="flex items-center gap-2"
+                className="flex items-center gap-3"
                 initial={false}
-                animate={{ width: expanded ? 'auto' : '48px' }}
+                animate={{ width: expanded ? 'auto' : '40px' }}
             >
-                {/* Meli Hand Logo */}
-                <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 48 48"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="flex-shrink-0"
-                >
-                    <circle cx="24" cy="24" r="24" fill="#FFE600" />
-                    <path
-                        d="M16 22V32H12V22H16ZM32 18C33.1 18 34 18.9 34 20V28C34 29.1 33.1 30 32 30H20L16 26V20C16 18.9 16.9 18 18 18H32Z"
-                        fill="#2D3277"
+                {/* Logo Image */}
+                <div className="relative flex-shrink-0 w-10 h-10">
+                    <NextImage
+                        src="/logo-somos.png"
+                        alt="Somos Preta Logo"
+                        fill
+                        className="object-contain"
+                        sizes="40px"
                     />
-                    <path
-                        d="M24 12C22.4 12 21 13.4 21 15V18H24V15C24 14.4 24.4 14 25 14H27C27.6 14 28 14.4 28 15V18H31V15C31 13.4 29.6 12 28 12H24Z"
-                        fill="#2D3277"
-                    />
-                </svg>
+                </div>
 
                 <AnimatePresence>
                     {expanded && (
@@ -79,16 +71,16 @@ export function Sidebar() {
     return (
         <div className="fixed left-0 top-0 h-screen p-4 z-40 hidden lg:block pointer-events-none">
             <motion.aside
-                className="h-full bg-white shadow-xl rounded-2xl overflow-hidden pointer-events-auto"
+                className="h-full bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden pointer-events-auto border border-gray-100/50"
                 initial={false}
-                animate={{ width: expanded ? 240 : 72 }}
+                animate={{ width: expanded ? 260 : 80 }}
                 onMouseEnter={() => setExpanded(true)}
                 onMouseLeave={() => setExpanded(false)}
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
-                <MeliLogo expanded={expanded} />
+                <Logo expanded={expanded} />
 
-                <nav className="flex flex-col gap-1 p-2 mt-2">
+                <nav className="flex flex-col gap-2 p-3 mt-2">
                     {navItems.map((item) => {
                         const isActive = pathname === item.href;
                         const Icon = item.icon;
@@ -98,26 +90,27 @@ export function Sidebar() {
                                 key={item.href}
                                 href={item.href}
                                 className={cn(
-                                    'flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group',
+                                    'relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group overflow-hidden',
                                     isActive
-                                        ? 'bg-meli-yellow text-meli-blue'
-                                        : 'text-meli-text-secondary hover:bg-gray-100 hover:text-meli-text'
+                                        ? 'bg-meli-blue text-white shadow-lg shadow-meli-blue/20'
+                                        : 'text-gray-500 hover:bg-gray-50 hover:text-meli-blue'
                                 )}
                             >
                                 <motion.div
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.95 }}
+                                    className="relative z-10"
                                 >
-                                    <Icon className="w-6 h-6 flex-shrink-0" />
+                                    <Icon className={cn("w-6 h-6 flex-shrink-0", isActive ? "text-meli-yellow" : "text-current")} />
                                 </motion.div>
 
                                 <AnimatePresence>
                                     {expanded && (
                                         <motion.span
-                                            className="font-medium whitespace-nowrap overflow-hidden"
-                                            initial={{ opacity: 0, width: 0 }}
-                                            animate={{ opacity: 1, width: 'auto' }}
-                                            exit={{ opacity: 0, width: 0 }}
+                                            className="font-medium whitespace-nowrap overflow-hidden relative z-10"
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -10 }}
                                             transition={{ duration: 0.2, delay: 0.1 }}
                                         >
                                             {item.label}
@@ -127,12 +120,12 @@ export function Sidebar() {
 
                                 {isActive && expanded && (
                                     <motion.div
-                                        className="ml-auto"
+                                        className="ml-auto relative z-10"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
                                     >
-                                        <ChevronRight className="w-4 h-4" />
+                                        <ChevronRight className="w-4 h-4 text-meli-yellow" />
                                     </motion.div>
                                 )}
                             </Link>
@@ -197,7 +190,7 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
             <Sidebar />
             <MobileNav />
 
-            <main className="lg:ml-[88px] pb-24 lg:pb-8">
+            <main className="lg:ml-[100px] pb-24 lg:pb-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <motion.header
                         className="mb-8"
