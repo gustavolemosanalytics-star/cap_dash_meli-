@@ -9,9 +9,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Meli Ads Dashboard - Acompanhamento de Campanhas",
+  title: "Meli Music - Dashboard",
   description: "Dashboard moderno para acompanhamento de campanhas de marketing digital. Visualize métricas, funil de conversão e performance dos criativos.",
-  keywords: ["dashboard", "marketing", "campanhas", "ads", "métricas", "ROAS", "CTR"],
+  keywords: ["dashboard", "marketing", "campanhas", "ads", "métricas", "ROAS", "CTR", "Meli Music"],
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

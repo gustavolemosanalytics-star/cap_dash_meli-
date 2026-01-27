@@ -10,18 +10,23 @@ import {
     Calendar,
     Sparkles,
     AlertCircle,
-    CheckCircle
+    CheckCircle,
+    Image as ImageIcon
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { DayPicker, DateRange } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
 import { CampaignData, AggregatedKPIs, FunnelStep } from '@/types/campaign';
-import { formatCurrency, formatDecimal, cn, parseDate } from '@/lib/utils';
+import { formatCurrency, formatDecimal, formatNumber, cn, parseDate } from '@/lib/utils';
 import { PageLayout } from '@/components/layout/Sidebar';
 import { KPICard } from '@/components/ui/KPICard';
-import { VisualFunnel } from '@/components/dashboard/ConversionFunnel';
+import { TrapezoidFunnel } from '@/components/dashboard/ConversionFunnel';
 import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
 import { CampaignTable } from '@/components/dashboard/CampaignTable';
 import { PerformanceDemographics } from '@/components/dashboard/PerformanceDemographics';
-import { calculateKPIs, calculateFunnel } from '@/lib/sheets';
+import { calculateKPIs, calculateFunnel, getUniqueCreatives } from '@/lib/sheets';
 
 interface DashboardContentProps {
     data: CampaignData[];
@@ -29,88 +34,93 @@ interface DashboardContentProps {
     funnel: FunnelStep[];
 }
 
-// Date filter options
-const dateRangeOptions = [
-    { label: 'Últimos 7 dias', days: 7 },
-    { label: 'Últimos 14 dias', days: 14 },
-    { label: 'Últimos 30 dias', days: 30 },
-    { label: 'Últimos 60 dias', days: 60 },
-    { label: 'Últimos 90 dias', days: 90 },
-];
-
-// Smart Analysis Component
+// Smart Analysis Component with Creative Highlights
 function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: AggregatedKPIs }) {
     const insights = useMemo(() => {
         const results: Array<{ type: 'success' | 'warning' | 'info', title: string, description: string }> = [];
 
-        // Analyze ROAS
-        if (kpis.roas >= 3) {
-            results.push({
-                type: 'success',
-                title: 'ROAS Excelente',
-                description: `Seu ROAS está em ${kpis.roas.toFixed(2)}x - para cada R$1 investido, você está retornando R$${kpis.roas.toFixed(2)}.`
-            });
-        } else if (kpis.roas < 1) {
-            results.push({
-                type: 'warning',
-                title: 'ROAS Abaixo do Ideal',
-                description: `Seu ROAS está em ${kpis.roas.toFixed(2)}x. Considere otimizar suas campanhas para melhorar o retorno.`
-            });
-        }
+        // Get unique creatives
+        const creatives = getUniqueCreatives(data);
 
-        // Analyze CTR
-        if (kpis.ctr > 2) {
-            results.push({
-                type: 'success',
-                title: 'CTR Acima da Média',
-                description: `Taxa de cliques de ${kpis.ctr.toFixed(2)}% indica boa relevância dos anúncios.`
-            });
-        } else if (kpis.ctr < 0.5) {
-            results.push({
-                type: 'warning',
-                title: 'CTR Baixo',
-                description: `CTR de ${kpis.ctr.toFixed(2)}%. Considere revisar criativos e segmentação.`
-            });
-        }
-
-        // Analyze CPC
-        if (kpis.cpc < 1) {
-            results.push({
-                type: 'success',
-                title: 'CPC Eficiente',
-                description: `Custo por clique de ${formatCurrency(kpis.cpc)} está dentro de uma faixa eficiente.`
-            });
-        }
-
-        // Top performing campaign
-        const campaignPerformance = data.reduce((acc, item) => {
-            if (!acc[item.campaign]) {
-                acc[item.campaign] = { spend: 0, revenue: 0 };
-            }
-            acc[item.campaign].spend += item.spend;
-            acc[item.campaign].revenue += item.action_values_omni_purchase;
-            return acc;
-        }, {} as Record<string, { spend: number, revenue: number }>);
-
-        const topCampaign = Object.entries(campaignPerformance)
-            .map(([name, data]) => ({ name, roas: data.spend > 0 ? data.revenue / data.spend : 0 }))
+        // Top performing creative by ROAS
+        const topCreativeByRoas = creatives
+            .map(c => ({
+                name: c.ad_name,
+                roas: c.spend > 0 ? c.action_values_omni_purchase / c.spend : 0,
+                spend: c.spend,
+                revenue: c.action_values_omni_purchase
+            }))
+            .filter(c => c.spend > 100) // Only consider creatives with significant spend
             .sort((a, b) => b.roas - a.roas)[0];
 
-        if (topCampaign && topCampaign.roas > 0) {
+        if (topCreativeByRoas && topCreativeByRoas.roas > 0) {
             results.push({
-                type: 'info',
-                title: 'Destaque de Performance',
-                description: `"${topCampaign.name}" é sua campanha com melhor ROAS: ${topCampaign.roas.toFixed(2)}x.`
+                type: 'success',
+                title: 'Criativo Top ROAS',
+                description: `"${topCreativeByRoas.name.substring(0, 40)}${topCreativeByRoas.name.length > 40 ? '...' : ''}" com ROAS de ${topCreativeByRoas.roas.toFixed(2)}x`
             });
         }
 
-        return results.slice(0, 4); // Max 4 insights
-    }, [data, kpis]);
+        // Most efficient creative by CTR
+        const topCreativeByCtr = creatives
+            .map(c => ({
+                name: c.ad_name,
+                ctr: c.impressions > 0 ? (c.actions_link_click / c.impressions) * 100 : 0,
+                impressions: c.impressions
+            }))
+            .filter(c => c.impressions > 1000)
+            .sort((a, b) => b.ctr - a.ctr)[0];
+
+        if (topCreativeByCtr && topCreativeByCtr.ctr > 0) {
+            results.push({
+                type: 'info',
+                title: 'Melhor CTR',
+                description: `"${topCreativeByCtr.name.substring(0, 40)}${topCreativeByCtr.name.length > 40 ? '...' : ''}" com CTR de ${topCreativeByCtr.ctr.toFixed(2)}%`
+            });
+        }
+
+        // Creative with most conversions
+        const topCreativeByConversions = creatives
+            .map(c => ({
+                name: c.ad_name,
+                conversions: c.actions_offsite_conversion_fb_pixel_purchase,
+                revenue: c.action_values_omni_purchase
+            }))
+            .sort((a, b) => b.conversions - a.conversions)[0];
+
+        if (topCreativeByConversions && topCreativeByConversions.conversions > 0) {
+            results.push({
+                type: 'success',
+                title: 'Mais Conversões',
+                description: `"${topCreativeByConversions.name.substring(0, 40)}${topCreativeByConversions.name.length > 40 ? '...' : ''}" com ${formatNumber(topCreativeByConversions.conversions)} compras`
+            });
+        }
+
+        // Low performing creative warning
+        const lowPerformingCreative = creatives
+            .map(c => ({
+                name: c.ad_name,
+                roas: c.spend > 0 ? c.action_values_omni_purchase / c.spend : 0,
+                spend: c.spend
+            }))
+            .filter(c => c.spend > 500 && c.roas < 1)
+            .sort((a, b) => a.roas - b.roas)[0];
+
+        if (lowPerformingCreative) {
+            results.push({
+                type: 'warning',
+                title: 'Criativo a Otimizar',
+                description: `"${lowPerformingCreative.name.substring(0, 40)}${lowPerformingCreative.name.length > 40 ? '...' : ''}" com ROAS de ${lowPerformingCreative.roas.toFixed(2)}x precisa de atenção`
+            });
+        }
+
+        return results.slice(0, 4);
+    }, [data]);
 
     const iconMap = {
         success: CheckCircle,
         warning: AlertCircle,
-        info: Sparkles
+        info: ImageIcon
     };
 
     const colorMap = {
@@ -126,6 +136,7 @@ function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: Aggrega
                     <Sparkles className="w-5 h-5 text-meli-blue" />
                 </div>
                 <h3 className="text-lg font-bold text-meli-text">Análise Inteligente</h3>
+                <span className="text-xs text-meli-text-secondary bg-gray-100 px-2 py-1 rounded-full ml-2">Destaques de Criativos</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {insights.map((insight, index) => {
@@ -157,34 +168,34 @@ function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: Aggrega
 }
 
 export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunnel }: DashboardContentProps) {
-    const [selectedRange, setSelectedRange] = useState(30);
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        return { from: thirtyDaysAgo, to: today };
+    });
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
     // Filter data by date range
     const filteredData = useMemo(() => {
-        const today = new Date();
-        const startDate = new Date();
-        startDate.setDate(today.getDate() - selectedRange);
+        if (!dateRange?.from || !dateRange?.to) return data;
 
         return data.filter(item => {
             const itemDate = parseDate(item.date);
-            return itemDate >= startDate && itemDate <= today;
+            return itemDate >= dateRange.from! && itemDate <= dateRange.to!;
         });
-    }, [data, selectedRange]);
+    }, [data, dateRange]);
 
     // Recalculate KPIs based on filtered data
     const kpis = useMemo(() => calculateKPIs(filteredData), [filteredData]);
     const funnel = useMemo(() => calculateFunnel(filteredData), [filteredData]);
 
-    // Calculate date range display
+    // Format date range display
     const dateRangeDisplay = useMemo(() => {
-        const today = new Date();
-        const startDate = new Date();
-        startDate.setDate(today.getDate() - selectedRange);
-
-        const formatDate = (d: Date) => d.toLocaleDateString('pt-BR');
-        return `(${formatDate(startDate)} - ${formatDate(today)})`;
-    }, [selectedRange]);
+        if (!dateRange?.from) return 'Selecione um período';
+        if (!dateRange.to) return format(dateRange.from, 'dd/MM/yyyy', { locale: ptBR });
+        return `${format(dateRange.from, 'dd/MM/yyyy', { locale: ptBR })} - ${format(dateRange.to, 'dd/MM/yyyy', { locale: ptBR })}`;
+    }, [dateRange]);
 
     return (
         <PageLayout
@@ -192,44 +203,96 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
             subtitle="Acompanhamento de performance de mídia"
         >
             <div className="space-y-8">
-                {/* Period Filter - Functional */}
+                {/* Period Filter - DatePicker */}
                 <div className="relative">
                     <button
                         onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
                         className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-gray-200 w-fit shadow-sm hover:border-meli-yellow hover:shadow-md transition-all cursor-pointer"
                     >
                         <Calendar className="w-5 h-5 text-meli-blue" />
-                        <span className="text-sm font-semibold text-meli-text">
-                            {dateRangeOptions.find(o => o.days === selectedRange)?.label || 'Selecione'}
-                        </span>
-                        <span className="text-xs text-meli-text-secondary">{dateRangeDisplay}</span>
+                        <span className="text-sm font-semibold text-meli-text">{dateRangeDisplay}</span>
                     </button>
 
-                    {/* Dropdown */}
+                    {/* DatePicker Dropdown */}
                     {isDatePickerOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 min-w-[200px]"
-                        >
-                            {dateRangeOptions.map((option) => (
-                                <button
-                                    key={option.days}
-                                    onClick={() => {
-                                        setSelectedRange(option.days);
-                                        setIsDatePickerOpen(false);
+                        <>
+                            <div
+                                className="fixed inset-0 z-40"
+                                onClick={() => setIsDatePickerOpen(false)}
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50"
+                            >
+                                <DayPicker
+                                    mode="range"
+                                    selected={dateRange}
+                                    onSelect={setDateRange}
+                                    locale={ptBR}
+                                    numberOfMonths={2}
+                                    className="!font-sans"
+                                    classNames={{
+                                        day_selected: 'bg-meli-yellow text-meli-blue',
+                                        day_range_middle: 'bg-meli-yellow/30',
+                                        day_range_end: 'bg-meli-yellow text-meli-blue',
+                                        day_range_start: 'bg-meli-yellow text-meli-blue',
                                     }}
-                                    className={cn(
-                                        'w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors',
-                                        selectedRange === option.days
-                                            ? 'bg-meli-yellow/20 text-meli-blue font-semibold'
-                                            : 'text-meli-text'
-                                    )}
-                                >
-                                    {option.label}
-                                </button>
-                            ))}
-                        </motion.div>
+                                />
+                                <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                                    <button
+                                        onClick={() => {
+                                            const today = new Date();
+                                            const sevenDaysAgo = new Date();
+                                            sevenDaysAgo.setDate(today.getDate() - 7);
+                                            setDateRange({ from: sevenDaysAgo, to: today });
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                    >
+                                        7 dias
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const today = new Date();
+                                            const fourteenDaysAgo = new Date();
+                                            fourteenDaysAgo.setDate(today.getDate() - 14);
+                                            setDateRange({ from: fourteenDaysAgo, to: today });
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                    >
+                                        14 dias
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const today = new Date();
+                                            const thirtyDaysAgo = new Date();
+                                            thirtyDaysAgo.setDate(today.getDate() - 30);
+                                            setDateRange({ from: thirtyDaysAgo, to: today });
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                    >
+                                        30 dias
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const today = new Date();
+                                            const sixtyDaysAgo = new Date();
+                                            sixtyDaysAgo.setDate(today.getDate() - 60);
+                                            setDateRange({ from: sixtyDaysAgo, to: today });
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                    >
+                                        60 dias
+                                    </button>
+                                    <button
+                                        onClick={() => setIsDatePickerOpen(false)}
+                                        className="ml-auto px-3 py-1.5 text-xs font-semibold bg-meli-yellow text-meli-blue rounded-lg hover:bg-yellow-400 transition-colors"
+                                    >
+                                        Aplicar
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </>
                     )}
                 </div>
 
@@ -291,7 +354,7 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                     {/* Funnel on the Left (Column span 3) */}
                     <div className="col-span-12 lg:col-span-3">
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full">
-                            <VisualFunnel steps={funnel} />
+                            <TrapezoidFunnel steps={funnel} />
                         </div>
                     </div>
 

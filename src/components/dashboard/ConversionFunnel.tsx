@@ -10,95 +10,97 @@ interface FunnelStep {
     conversionFromPrevious?: number;
 }
 
-interface VisualFunnelProps {
+interface TrapezoidFunnelProps {
     steps: FunnelStep[];
 }
 
-export function VisualFunnel({ steps }: VisualFunnelProps) {
-    const maxValue = Math.max(...steps.map(s => s.value), 1);
-
-    // Map names to display (if needed for future translations)
-    const displayNames: Record<string, string> = {};
+// Trapezoid Funnel following the design image
+export function TrapezoidFunnel({ steps }: TrapezoidFunnelProps) {
+    // Colors matching the reference image (top to bottom)
+    const colors = [
+        '#2D3277', // Dark blue - Awareness/Impressões
+        '#3B5998', // Medium blue - Interest/Cliques
+        '#F7B928', // Yellow - Decision/Page View
+        '#E8A825', // Gold - Add to Cart
+        '#E07B39', // Orange - Checkout
+        '#C85A3B', // Red-orange - Action/Compra
+    ];
 
     return (
         <div className="space-y-4">
             <h3 className="text-lg font-bold text-meli-text mb-6">Funil de Conversão</h3>
 
-            {/* Visual Funnel Shape */}
-            <div className="relative flex flex-col items-center gap-0">
-                {steps.map((step, index) => {
-                    const widthPercent = Math.max((step.value / maxValue) * 100, 20);
-                    const isLast = index === steps.length - 1;
-                    const conversionRate = step.conversionFromPrevious || (
-                        index > 0 && steps[index - 1].value > 0
+            {/* Trapezoid Funnel Shape */}
+            <div className="relative">
+                <svg viewBox="0 0 200 300" className="w-full max-w-[250px] mx-auto">
+                    {steps.map((step, index) => {
+                        const topWidth = 200 - (index * 25);
+                        const bottomWidth = 200 - ((index + 1) * 25);
+                        const yStart = index * 50;
+                        const height = 50;
+
+                        const topLeftX = (200 - topWidth) / 2;
+                        const topRightX = topLeftX + topWidth;
+                        const bottomLeftX = (200 - bottomWidth) / 2;
+                        const bottomRightX = bottomLeftX + bottomWidth;
+
+                        return (
+                            <g key={step.name}>
+                                <motion.path
+                                    d={`M ${topLeftX} ${yStart} L ${topRightX} ${yStart} L ${bottomRightX} ${yStart + height} L ${bottomLeftX} ${yStart + height} Z`}
+                                    fill={colors[index % colors.length]}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                                />
+                                {/* Step label */}
+                                <text
+                                    x="100"
+                                    y={yStart + height / 2 + 5}
+                                    textAnchor="middle"
+                                    fill="white"
+                                    fontSize="11"
+                                    fontWeight="600"
+                                    className="select-none"
+                                >
+                                    {step.name}
+                                </text>
+                            </g>
+                        );
+                    })}
+                </svg>
+
+                {/* Values and percentages on the right */}
+                <div className="absolute top-0 right-0 h-full flex flex-col justify-around py-2">
+                    {steps.map((step, index) => {
+                        const conversionRate = index > 0 && steps[index - 1].value > 0
                             ? (step.value / steps[index - 1].value) * 100
-                            : 100
-                    );
+                            : 100;
 
-                    // Gradient colors from yellow to blue
-                    const colors = [
-                        'from-meli-yellow to-yellow-400',
-                        'from-yellow-400 to-amber-400',
-                        'from-amber-400 to-orange-400',
-                        'from-orange-400 to-indigo-400',
-                        'from-indigo-400 to-indigo-500',
-                        'from-indigo-500 to-meli-blue',
-                    ];
-
-                    const displayName = displayNames[step.name] || step.name;
-
-                    return (
-                        <div key={step.name} className="w-full flex flex-col items-center">
-                            {/* Funnel segment */}
+                        return (
                             <motion.div
-                                className={cn(
-                                    'relative flex items-center justify-center py-3 bg-gradient-to-r',
-                                    colors[index % colors.length],
-                                    index === 0 && 'rounded-t-xl',
-                                    isLast && 'rounded-b-xl'
-                                )}
-                                style={{
-                                    clipPath: isLast
-                                        ? 'polygon(5% 0%, 95% 0%, 90% 100%, 10% 100%)'
-                                        : `polygon(${50 - widthPercent/2}% 0%, ${50 + widthPercent/2}% 0%, ${50 + (widthPercent * 0.85)/2}% 100%, ${50 - (widthPercent * 0.85)/2}% 100%)`,
-                                }}
-                                initial={{ opacity: 0, scaleX: 0 }}
-                                animate={{ opacity: 1, scaleX: 1, width: `${widthPercent}%` }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                                key={step.name}
+                                className="text-right"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
                             >
-                                <div className="text-center z-10 px-2">
-                                    <p className="text-xs font-bold text-white drop-shadow-sm truncate max-w-[120px]">
-                                        {displayName}
-                                    </p>
-                                    <p className="text-sm font-bold text-white drop-shadow-sm">
-                                        {formatNumber(step.value)}
-                                    </p>
-                                </div>
-                            </motion.div>
-
-                            {/* Conversion percentage between steps */}
-                            {!isLast && (
-                                <div className="relative z-20 -my-1">
-                                    <motion.div
-                                        className={cn(
-                                            'px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm',
-                                            conversionRate >= 30
-                                                ? 'bg-green-100 text-green-700 border border-green-200'
-                                                : conversionRate >= 10
-                                                ? 'bg-amber-100 text-amber-700 border border-amber-200'
-                                                : 'bg-red-100 text-red-700 border border-red-200'
-                                        )}
-                                        initial={{ opacity: 0, scale: 0 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.3, delay: index * 0.1 + 0.3 }}
-                                    >
+                                <p className="text-sm font-bold text-meli-text">
+                                    {formatNumber(step.value)}
+                                </p>
+                                {index > 0 && (
+                                    <p className={cn(
+                                        'text-[10px] font-semibold',
+                                        conversionRate >= 30 ? 'text-green-600' :
+                                        conversionRate >= 10 ? 'text-amber-600' : 'text-red-500'
+                                    )}>
                                         {conversionRate.toFixed(1)}%
-                                    </motion.div>
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
+                                    </p>
+                                )}
+                            </motion.div>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Legend */}
@@ -110,3 +112,6 @@ export function VisualFunnel({ steps }: VisualFunnelProps) {
         </div>
     );
 }
+
+// Keep the old export for backward compatibility
+export { TrapezoidFunnel as VisualFunnel };
