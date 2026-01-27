@@ -67,16 +67,17 @@ export function PerformanceDemographics() {
                 const dataLines = lines.slice(1);
                 const parsedData: DemographicsDataItem[] = [];
 
+                // Columns: date, spend, impressions, actions_link_click, actions_post_engagement, age, gender, actions_offsite_conversion_fb_pixel_purchase
                 for (const line of dataLines) {
                     const values = parseCSVLine(line);
-                    if (values.length >= 6) {
+                    if (values.length >= 8) {
                         parsedData.push({
-                            age: values[0] || '',
-                            gender: values[1] || '',
+                            age: values[5] || '',
+                            gender: values[6] || '',
                             impressions: parseInt(values[2]) || 0,
                             clicks: parseInt(values[3]) || 0,
                             engagement: parseInt(values[4]) || 0,
-                            purchases: parseInt(values[5]) || 0,
+                            purchases: parseInt(values[7]) || 0,
                         });
                     }
                 }

@@ -360,7 +360,7 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
 
                     {/* Table and Demographics on the Right (Column span 9) */}
                     <div className="col-span-12 lg:col-span-9 space-y-8">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div>
                             <h3 className="text-lg font-bold text-meli-text mb-6">Detalhamento de Campanhas</h3>
                             <CampaignTable data={filteredData} />
                         </div>
