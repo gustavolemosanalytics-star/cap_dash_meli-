@@ -63,77 +63,67 @@ function Logo({ expanded }: { expanded: boolean }) {
     );
 }
 
-// Floating Desktop Sidebar with spacing
-export function Sidebar() {
+// Floating Centered Navbar
+export function Navbar() {
     const pathname = usePathname();
-    const [expanded, setExpanded] = useState(false);
 
     return (
-        <div className="fixed left-0 top-0 h-screen p-4 z-40 hidden lg:block pointer-events-none">
-            <motion.aside
-                className="h-full bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden pointer-events-auto border border-gray-100/50"
-                initial={false}
-                animate={{ width: expanded ? 260 : 80 }}
-                onMouseEnter={() => setExpanded(true)}
-                onMouseLeave={() => setExpanded(false)}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-            >
-                <Logo expanded={expanded} />
+        <motion.nav
+            className="fixed top-6 left-1/2 z-50 hidden lg:flex items-center gap-1 bg-white/90 backdrop-blur-md shadow-xl shadow-meli-blue/5 border border-white/20 rounded-full px-2 py-2 pr-6"
+            initial={{ y: -100, x: "-50%", opacity: 0 }}
+            animate={{ y: 0, x: "-50%", opacity: 1 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        >
+            {/* Logo Section */}
+            <div className="flex items-center gap-3 pr-6 pl-4 border-r border-gray-200/50">
+                <div className="relative w-8 h-8">
+                    <NextImage
+                        src="/logo-somos.png"
+                        alt="Meli Music Logo"
+                        fill
+                        className="object-contain"
+                        sizes="32px"
+                    />
+                </div>
+                <span className="font-bold text-meli-blue whitespace-nowrap">
+                    Meli Music
+                </span>
+            </div>
 
-                <nav className="flex flex-col gap-2 p-3 mt-2">
-                    {navItems.map((item) => {
-                        const isActive = pathname === item.href;
-                        const Icon = item.icon;
+            {/* Nav Items */}
+            <div className="flex items-center gap-1 pl-2">
+                {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    const Icon = item.icon;
 
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={cn(
-                                    'relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group overflow-hidden',
-                                    isActive
-                                        ? 'bg-meli-blue text-white shadow-lg shadow-meli-blue/20'
-                                        : 'text-gray-500 hover:bg-gray-50 hover:text-meli-blue'
-                                )}
-                            >
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={cn(
+                                'relative flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300',
+                                isActive
+                                    ? 'text-white'
+                                    : 'text-gray-500 hover:text-meli-blue hover:bg-gray-50'
+                            )}
+                        >
+                            {isActive && (
                                 <motion.div
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="relative z-10"
-                                >
-                                    <Icon className={cn("w-6 h-6 flex-shrink-0", isActive ? "text-meli-yellow" : "text-current")} />
-                                </motion.div>
-
-                                <AnimatePresence>
-                                    {expanded && (
-                                        <motion.span
-                                            className="font-medium whitespace-nowrap overflow-hidden relative z-10"
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -10 }}
-                                            transition={{ duration: 0.2, delay: 0.1 }}
-                                        >
-                                            {item.label}
-                                        </motion.span>
-                                    )}
-                                </AnimatePresence>
-
-                                {isActive && expanded && (
-                                    <motion.div
-                                        className="ml-auto relative z-10"
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                    >
-                                        <ChevronRight className="w-4 h-4 text-meli-yellow" />
-                                    </motion.div>
-                                )}
-                            </Link>
-                        );
-                    })}
-                </nav>
-            </motion.aside>
-        </div>
+                                    layoutId="activeTab"
+                                    className="absolute inset-0 bg-meli-blue rounded-full shadow-lg shadow-meli-blue/20"
+                                    initial={false}
+                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                />
+                            )}
+                            <span className="relative z-10 flex items-center gap-2 font-medium text-sm">
+                                <Icon className={cn("w-4 h-4", isActive ? "text-meli-yellow" : "text-current")} />
+                                {item.label}
+                            </span>
+                        </Link>
+                    );
+                })}
+            </div>
+        </motion.nav>
     );
 }
 
@@ -142,7 +132,7 @@ export function MobileNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="fixed bottom-4 left-4 right-4 bg-white shadow-xl border border-gray-100 rounded-2xl lg:hidden z-40">
+        <nav className="fixed bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md shadow-xl border border-gray-100/50 rounded-2xl lg:hidden z-40">
             <div className="flex justify-around items-center h-16 px-2">
                 {navItems.slice(0, 4).map((item) => {
                     const isActive = pathname === item.href;
@@ -163,12 +153,12 @@ export function MobileNav() {
                                 whileTap={{ scale: 0.9 }}
                                 className={cn(
                                     'p-2 rounded-xl transition-colors',
-                                    isActive && 'bg-meli-yellow'
+                                    isActive && 'bg-meli-yellow/10'
                                 )}
                             >
-                                <Icon className="w-5 h-5" />
+                                <Icon className={cn("w-5 h-5", isActive && "fill-current")} />
                             </motion.div>
-                            <span className="text-xs font-medium">{item.label.split(' ')[0]}</span>
+                            <span className="text-[10px] font-medium">{item.label.split(' ')[0]}</span>
                         </Link>
                     );
                 })}
@@ -186,15 +176,16 @@ interface PageLayoutProps {
 
 export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
     return (
-        <div className="min-h-screen bg-background">
-            <Sidebar />
+        <div className="min-h-screen bg-gray-50/50">
+            <Navbar />
             <MobileNav />
 
-            <main className="lg:ml-[100px] pb-24 lg:pb-8">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {/* Main Content - Added padding top for navbar space */}
+            <main className="pt-32 pb-24 lg:pb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.header
                         className="mb-8"
-                        initial={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4 }}
                     >

@@ -25,6 +25,7 @@ import { KPICard } from '@/components/ui/KPICard';
 import { TrapezoidFunnel } from '@/components/dashboard/ConversionFunnel';
 import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
 import { PerformanceDemographics } from '@/components/dashboard/PerformanceDemographics';
+import { FunnelOverTimeChart } from '@/components/dashboard/FunnelOverTimeChart';
 import { calculateKPIs, calculateFunnel, getUniqueCreatives } from '@/lib/sheets';
 
 interface DashboardContentProps {
@@ -142,7 +143,6 @@ function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: Aggrega
                     <Sparkles className="w-5 h-5 text-meli-blue" />
                 </div>
                 <h3 className="text-lg font-bold text-meli-text">Análise Inteligente</h3>
-                <span className="text-xs text-meli-text-secondary bg-gray-100 px-2 py-1 rounded-full ml-auto sm:ml-2">Insights Automáticos</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {insights.map((insight, index) => {
@@ -348,6 +348,8 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                     />
                 </div>
 
+
+
                 {/* Middle: Performance Area Chart */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <div className="flex items-center justify-between mb-2">
@@ -357,6 +359,17 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                         </span>
                     </div>
                     <PerformanceChart data={filteredData} height={350} />
+                </div>
+
+                {/* Middle 2: Funnel Evolution Chart */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-bold text-meli-text">Evolução do Funil</h3>
+                        <span className="text-xs text-meli-text-secondary bg-gray-100 px-3 py-1 rounded-full">
+                            Page Views, Carrinho, Checkout e Compras
+                        </span>
+                    </div>
+                    <FunnelOverTimeChart data={filteredData} height={350} />
                 </div>
 
                 {/* Bottom Section: Funnel (left) and Demographics (right) - symmetric layout */}
