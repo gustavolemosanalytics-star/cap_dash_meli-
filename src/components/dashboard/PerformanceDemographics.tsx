@@ -45,8 +45,9 @@ export function PerformanceDemographics() {
             setError(null);
 
             try {
-                // Try to fetch from the second sheet (gid parameter)
-                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1`;
+                // Fetch from "meta age gender" sheet using sheet name
+                const sheetName = encodeURIComponent('meta age gender');
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
                 const response = await fetch(url);
 
                 if (!response.ok) {

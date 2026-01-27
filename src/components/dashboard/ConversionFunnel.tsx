@@ -30,12 +30,12 @@ export function TrapezoidFunnel({ steps }: TrapezoidFunnelProps) {
         <div className="space-y-4">
             <h3 className="text-lg font-bold text-meli-text mb-6">Funil de Conversão</h3>
 
-            {/* Trapezoid Funnel Shape */}
-            <div className="relative">
-                <svg viewBox="0 0 200 300" className="w-full max-w-[250px] mx-auto">
+            {/* Trapezoid Funnel Shape - 30% wider */}
+            <div className="relative flex items-start gap-4">
+                <svg viewBox="0 0 200 300" className="w-full max-w-[325px] flex-shrink-0">
                     {steps.map((step, index) => {
-                        const topWidth = 200 - (index * 25);
-                        const bottomWidth = 200 - ((index + 1) * 25);
+                        const topWidth = 180 - (index * 20);
+                        const bottomWidth = 180 - ((index + 1) * 20);
                         const yStart = index * 50;
                         const height = 50;
 
@@ -59,7 +59,7 @@ export function TrapezoidFunnel({ steps }: TrapezoidFunnelProps) {
                                     y={yStart + height / 2 + 5}
                                     textAnchor="middle"
                                     fill="white"
-                                    fontSize="11"
+                                    fontSize="12"
                                     fontWeight="600"
                                     className="select-none"
                                 >
@@ -71,7 +71,7 @@ export function TrapezoidFunnel({ steps }: TrapezoidFunnelProps) {
                 </svg>
 
                 {/* Values and percentages on the right */}
-                <div className="absolute top-0 right-0 h-full flex flex-col justify-around py-2">
+                <div className="flex flex-col justify-around h-[300px] py-2 min-w-[70px]">
                     {steps.map((step, index) => {
                         const conversionRate = index > 0 && steps[index - 1].value > 0
                             ? (step.value / steps[index - 1].value) * 100
