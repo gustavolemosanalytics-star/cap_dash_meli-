@@ -14,100 +14,97 @@ interface TrapezoidFunnelProps {
     steps: FunnelStep[];
 }
 
-// Trapezoid Funnel following the design image
 export function TrapezoidFunnel({ steps }: TrapezoidFunnelProps) {
-    // Colors matching the reference image (top to bottom)
+    // Colors for the funnel stages (top to bottom)
     const colors = [
-        '#2D3277', // Dark blue - Awareness/Impressões
-        '#3B5998', // Medium blue - Interest/Cliques
-        '#F7B928', // Yellow - Decision/Page View
-        '#E8A825', // Gold - Add to Cart
+        '#2D3277', // Dark blue - Impressões
+        '#3B5998', // Medium blue - Cliques
+        '#5B7EC2', // Light blue - Page View
+        '#F7B928', // Yellow - Add to Cart
         '#E07B39', // Orange - Checkout
-        '#C85A3B', // Red-orange - Action/Compra
+        '#C85A3B', // Red-orange - Compra
     ];
 
     return (
-        <div className="space-y-4">
-            <h3 className="text-lg font-bold text-meli-text mb-6">Funil de Conversão</h3>
+        <div className="space-y-3">
+            <h3 className="text-lg font-bold text-meli-text">Funil de Conversão</h3>
 
-            {/* Trapezoid Funnel Shape - 30% wider */}
-            <div className="relative flex items-start gap-4">
-                <svg viewBox="0 0 200 300" className="w-full max-w-[325px] flex-shrink-0">
-                    {steps.map((step, index) => {
-                        const topWidth = 180 - (index * 20);
-                        const bottomWidth = 180 - ((index + 1) * 20);
-                        const yStart = index * 50;
-                        const height = 50;
+            {/* Real Funnel Shape */}
+            <div className="flex flex-col items-center w-full">
+                {steps.map((step, index) => {
+                    // Calculate width percentage (decreasing from 100% to minimum)
+                    const widthPercent = 100 - (index * 12);
+                    const isLast = index === steps.length - 1;
 
-                        const topLeftX = (200 - topWidth) / 2;
-                        const topRightX = topLeftX + topWidth;
-                        const bottomLeftX = (200 - bottomWidth) / 2;
-                        const bottomRightX = bottomLeftX + bottomWidth;
+                    // Calculate conversion rate from previous step
+                    const conversionRate = index > 0 && steps[index - 1].value > 0
+                        ? (step.value / steps[index - 1].value) * 100
+                        : 100;
 
-                        return (
-                            <g key={step.name}>
-                                <motion.path
-                                    d={`M ${topLeftX} ${yStart} L ${topRightX} ${yStart} L ${bottomRightX} ${yStart + height} L ${bottomLeftX} ${yStart + height} Z`}
-                                    fill={colors[index % colors.length]}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                                />
-                                {/* Step label */}
-                                <text
-                                    x="100"
-                                    y={yStart + height / 2 + 5}
-                                    textAnchor="middle"
-                                    fill="white"
-                                    fontSize="12"
-                                    fontWeight="600"
-                                    className="select-none"
-                                >
-                                    {step.name}
-                                </text>
-                            </g>
-                        );
-                    })}
-                </svg>
-
-                {/* Values and percentages on the right */}
-                <div className="flex flex-col justify-around h-[300px] py-2 min-w-[70px]">
-                    {steps.map((step, index) => {
-                        const conversionRate = index > 0 && steps[index - 1].value > 0
-                            ? (step.value / steps[index - 1].value) * 100
-                            : 100;
-
-                        return (
+                    return (
+                        <div key={step.name} className="w-full flex flex-col items-center">
+                            {/* Funnel segment */}
                             <motion.div
-                                key={step.name}
-                                className="text-right"
-                                initial={{ opacity: 0, x: 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
+                                className="relative flex flex-col items-center justify-center py-3 text-white"
+                                style={{
+                                    width: `${widthPercent}%`,
+                                    backgroundColor: colors[index % colors.length],
+                                    clipPath: isLast
+                                        ? 'polygon(8% 0%, 92% 0%, 85% 100%, 15% 100%)'
+                                        : 'polygon(0% 0%, 100% 0%, 96% 100%, 4% 100%)',
+                                    minHeight: '52px',
+                                }}
+                                initial={{ opacity: 0, scaleY: 0 }}
+                                animate={{ opacity: 1, scaleY: 1 }}
+                                transition={{ duration: 0.4, delay: index * 0.1 }}
                             >
-                                <p className="text-sm font-bold text-meli-text">
+                                <span className="text-xs font-semibold opacity-90">
+                                    {step.name}
+                                </span>
+                                <span className="text-base font-bold">
                                     {formatNumber(step.value)}
-                                </p>
-                                {index > 0 && (
-                                    <p className={cn(
-                                        'text-[10px] font-semibold',
-                                        conversionRate >= 30 ? 'text-green-600' :
-                                        conversionRate >= 10 ? 'text-amber-600' : 'text-red-500'
-                                    )}>
-                                        {conversionRate.toFixed(1)}%
-                                    </p>
-                                )}
+                                </span>
                             </motion.div>
-                        );
-                    })}
-                </div>
+
+                            {/* Conversion percentage badge between segments */}
+                            {!isLast && (
+                                <motion.div
+                                    className={cn(
+                                        'z-10 -my-2 px-3 py-1 rounded-full text-xs font-bold shadow-md border-2 border-white',
+                                        conversionRate >= 30
+                                            ? 'bg-green-500 text-white'
+                                            : conversionRate >= 10
+                                            ? 'bg-amber-500 text-white'
+                                            : 'bg-red-500 text-white'
+                                    )}
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
+                                >
+                                    {conversionRate.toFixed(1)}%
+                                </motion.div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Legend */}
-            <div className="mt-4 pt-4 border-t border-gray-100">
-                <p className="text-xs text-meli-text-secondary text-center">
-                    Porcentagens indicam conversão entre etapas
-                </p>
+            <div className="pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-center gap-4 text-xs text-meli-text-secondary">
+                    <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                        <span>≥30%</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded-full bg-amber-500" />
+                        <span>10-30%</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                        <span>&lt;10%</span>
+                    </div>
+                </div>
             </div>
         </div>
     );
