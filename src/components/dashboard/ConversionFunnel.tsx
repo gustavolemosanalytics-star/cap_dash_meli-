@@ -74,14 +74,14 @@ export function TrapezoidFunnel({ steps }: TrapezoidFunnelProps) {
                                         conversionRate >= 30
                                             ? 'bg-green-500 text-white'
                                             : conversionRate >= 10
-                                            ? 'bg-amber-500 text-white'
-                                            : 'bg-red-500 text-white'
+                                                ? 'bg-amber-500 text-white'
+                                                : 'bg-red-500 text-white'
                                     )}
                                     initial={{ opacity: 0, scale: 0 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
                                 >
-                                    {conversionRate.toFixed(1)}%
+                                    {conversionRate.toFixed(1).replace('.', ',')}%
                                 </motion.div>
                             )}
                         </div>

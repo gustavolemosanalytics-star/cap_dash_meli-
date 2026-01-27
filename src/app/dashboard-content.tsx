@@ -11,7 +11,8 @@ import {
     Sparkles,
     AlertCircle,
     CheckCircle,
-    Image as ImageIcon
+    Image as ImageIcon,
+    ShoppingBag
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
@@ -309,13 +310,20 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                 {/* Smart Analysis Card */}
                 <SmartAnalysisCard data={filteredData} kpis={kpis} />
 
-                {/* Top KPI row - 5 Cards (Investimento, CTR, CPC, ROAS, CPM) */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+                {/* Top KPI row - 6 Cards (Investimento, Compras, CTR, CPC, ROAS, CPM) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-6">
                     <KPICard
                         title="Investimento"
                         value={kpis.totalSpend}
                         formattedValue={formatCurrency(kpis.totalSpend)}
                         icon={DollarSign}
+                        color="default"
+                    />
+                    <KPICard
+                        title="Total de Compras"
+                        value={kpis.totalPurchases}
+                        formattedValue={formatNumber(kpis.totalPurchases)}
+                        icon={ShoppingBag}
                         color="default"
                     />
                     <KPICard
