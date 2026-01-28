@@ -110,7 +110,11 @@ export function CriativosContent({ data }: CriativosContentProps) {
 
     return (
         <PageLayout
-            title="Criativos - Geral"
+            title={
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-meli-blue via-[#2D3277] to-meli-yellow font-black text-3xl sm:text-4xl tracking-tight drop-shadow-sm">
+                    Galeria de Criativos
+                </span>
+            }
             subtitle="Performance consolidada de todos os criativos"
         >
             <div className="space-y-6">

@@ -214,27 +214,9 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
     return (
         <PageLayout
             title={
-                <div className="flex items-center gap-3">
-                    <span>Visão Geral</span>
-                    <div className="flex items-center -space-x-2">
-                        <div className="relative w-10 h-10">
-                            <NextImage
-                                src="/assets/maozinhas/UM_MeliMusic26Prancheta 17.png"
-                                alt="Mãozinha 17"
-                                fill
-                                className="object-contain"
-                            />
-                        </div>
-                        <div className="relative w-10 h-10">
-                            <NextImage
-                                src="/assets/maozinhas/UM_MeliMusic26Prancheta 16.png"
-                                alt="Mãozinha 16"
-                                fill
-                                className="object-contain"
-                            />
-                        </div>
-                    </div>
-                </div>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-meli-blue via-[#2D3277] to-meli-yellow font-black text-3xl sm:text-4xl tracking-tight drop-shadow-sm">
+                    Visão Geral
+                </span>
             }
             subtitle="Acompanhamento de performance de mídia"
         >

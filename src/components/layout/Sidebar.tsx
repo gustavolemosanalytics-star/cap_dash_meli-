@@ -210,7 +210,7 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                     />
                 </div>
 
-                {/* Top Right */}
+                {/* Top Right - Prancheta 3 (Requested) */}
                 <div className="absolute top-32 -right-12 opacity-[0.08] rotate-6">
                     <NextImage
                         src="/assets/maozinhas/UM_MeliMusic26Prancheta 3.png"
@@ -221,13 +221,35 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                     />
                 </div>
 
-                {/* Bottom Right */}
+                {/* Bottom Right - Prancheta 5 */}
                 <div className="absolute -bottom-12 -right-12 opacity-[0.08] -rotate-6">
                     <NextImage
                         src="/assets/maozinhas/UM_MeliMusic26Prancheta 5.png"
                         alt="Decor"
                         width={320}
                         height={320}
+                        className="object-contain"
+                    />
+                </div>
+
+                {/* Extra Left - Prancheta 8 */}
+                <div className="absolute top-2/3 -left-12 opacity-[0.06] -rotate-12">
+                    <NextImage
+                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 8.png"
+                        alt="Decor"
+                        width={250}
+                        height={250}
+                        className="object-contain"
+                    />
+                </div>
+
+                {/* Extra Right Top - Prancheta 6 */}
+                <div className="absolute top-10 right-1/4 opacity-[0.04] rotate-180">
+                    <NextImage
+                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 6.png"
+                        alt="Decor"
+                        width={200}
+                        height={200}
                         className="object-contain"
                     />
                 </div>
