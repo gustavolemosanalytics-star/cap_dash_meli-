@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import NextImage from 'next/image';
 import { CampaignData, AggregatedKPIs, FunnelStep } from '@/types/campaign';
 import { formatCurrency, formatDecimal, formatNumber, cn, parseDate } from '@/lib/utils';
 import { PageLayout } from '@/components/layout/Sidebar';
@@ -212,10 +213,32 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
 
     return (
         <PageLayout
-            title="Visão Geral"
+            title={
+                <div className="flex items-center gap-3">
+                    <span>Visão Geral</span>
+                    <div className="flex items-center -space-x-2">
+                        <div className="relative w-10 h-10">
+                            <NextImage
+                                src="/assets/maozinhas/UM_MeliMusic26Prancheta 17.png"
+                                alt="Mãozinha 17"
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
+                        <div className="relative w-10 h-10">
+                            <NextImage
+                                src="/assets/maozinhas/UM_MeliMusic26Prancheta 16.png"
+                                alt="Mãozinha 16"
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
+                    </div>
+                </div>
+            }
             subtitle="Acompanhamento de performance de mídia"
         >
-            <div className="space-y-8">
+            <div className="space-y-8 relative z-10">
                 {/* Period Filter - DatePicker */}
                 <div className="relative">
                     <button

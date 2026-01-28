@@ -168,13 +168,44 @@ export function MobileNav() {
 // Page Layout Wrapper
 interface PageLayoutProps {
     children: React.ReactNode;
-    title: string;
+    title: React.ReactNode | string;
     subtitle?: string;
 }
 
 export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="min-h-screen bg-gray-50/50 relative overflow-x-hidden">
+            {/* Decorative Side Images */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute top-32 -left-12 opacity-[0.03] rotate-12">
+                    <NextImage
+                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 1.png"
+                        alt="Decor"
+                        width={300}
+                        height={300}
+                        className="object-contain"
+                    />
+                </div>
+                <div className="absolute top-96 -right-12 opacity-[0.03] -rotate-12">
+                    <NextImage
+                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 3.png"
+                        alt="Decor"
+                        width={400}
+                        height={400}
+                        className="object-contain"
+                    />
+                </div>
+                <div className="absolute bottom-32 -left-8 opacity-[0.03] rotate-45">
+                    <NextImage
+                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 12.png"
+                        alt="Decor"
+                        width={250}
+                        height={250}
+                        className="object-contain"
+                    />
+                </div>
+            </div>
+
             <Navbar />
             <MobileNav />
 
@@ -200,8 +231,8 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                     {children}
 
                     {/* Footer Sponsors */}
-                    <div className="mt-12 mb-8 flex flex-col items-center gap-6">
-                        <div className="relative w-full max-w-4xl h-24 sm:h-32 opacity-90 hover:opacity-100 transition-opacity">
+                    <div className="mt-12 mb-8 flex flex-col items-center gap-6 relative z-10">
+                        <div className="relative w-full max-w-2xl h-16 sm:h-20 opacity-90 hover:opacity-100 transition-opacity">
                             <NextImage
                                 src="/assets/UM_MeliMusic26Patrocinadores.png"
                                 alt="Patrocinadores Meli Music"
@@ -214,7 +245,7 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                         {/* Developer Credit */}
                         <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium opacity-60 hover:opacity-100 transition-opacity">
                             <span>Desenvolvido por CAP Digital</span>
-                            <div className="relative w-4 h-4">
+                            <div className="relative w-8 h-8">
                                 <NextImage
                                     src="/CAPCO_ORANGE_ENCAPSULATED.png"
                                     alt="CAP Digital"
