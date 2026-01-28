@@ -144,7 +144,7 @@ export function MobileNav() {
                                 'flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-lg transition-colors',
                                 isActive
                                     ? 'text-white'
-                                    : 'text-gray-400'
+                                    : 'text-gray-300 hover:text-white'
                             )}
                         >
                             <motion.div
@@ -154,7 +154,7 @@ export function MobileNav() {
                                     isActive && 'bg-white/10'
                                 )}
                             >
-                                <Icon className={cn("w-5 h-5", isActive ? "text-meli-yellow" : "fill-current")} />
+                                <Icon className={cn("w-5 h-5", isActive ? "text-meli-yellow" : "text-gray-300")} />
                             </motion.div>
                             <span className={cn("text-[10px] font-medium", isActive ? "text-white" : "")}>{item.label.split(' ')[0]}</span>
                         </Link>
@@ -200,8 +200,8 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                     {children}
 
                     {/* Footer Sponsors */}
-                    <div className="mt-12 mb-4 flex justify-center opacity-80 hover:opacity-100 transition-opacity">
-                        <div className="relative w-full max-w-4xl h-24 sm:h-32">
+                    <div className="mt-12 mb-8 flex flex-col items-center gap-6">
+                        <div className="relative w-full max-w-4xl h-24 sm:h-32 opacity-90 hover:opacity-100 transition-opacity">
                             <NextImage
                                 src="/assets/UM_MeliMusic26Patrocinadores.png"
                                 alt="Patrocinadores Meli Music"
@@ -209,6 +209,19 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                                 className="object-contain"
                                 sizes="(max-width: 768px) 100vw, 800px"
                             />
+                        </div>
+
+                        {/* Developer Credit */}
+                        <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium opacity-60 hover:opacity-100 transition-opacity">
+                            <span>Desenvolvido por CAP Digital</span>
+                            <div className="relative w-4 h-4">
+                                <NextImage
+                                    src="/CAPCO_ORANGE_ENCAPSULATED.png"
+                                    alt="CAP Digital"
+                                    fill
+                                    className="object-contain"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
