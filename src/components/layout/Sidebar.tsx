@@ -81,10 +81,7 @@ export function Navbar() {
                         src="/assets/UM_MeliMusic26Logo.png"
                         alt="Meli Music Logo"
                         fill
-                        className="object-contain brightness-0 invert" // Make logo white if it's transparent, or trust it fits. Assuming logic: "o que ta azul coloque branco". If the logo is blue, verify.
-                        // Actually, user provided specific logo assets/UM_MeliMusic26Logo.png. I will assume it renders correctly or needs no filter.
-                        // But wait, if the logo is the one from previous step, it might be colored. 
-                        // Let's remove the filter for now to be safe, unless it's dark on dark.
+                        className="object-contain"
                         sizes="(max-width: 768px) 96px, 120px"
                         priority
                     />
