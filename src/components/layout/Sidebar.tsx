@@ -244,12 +244,13 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                 </div>
 
                 {/* Extra Right Top - Prancheta 6 */}
-                <div className="absolute top-10 right-1/4 opacity-[0.04] rotate-180">
+                {/* Extra Right Top - Prancheta 6 */}
+                <div className="absolute top-2 right-[20%] opacity-[0.15] rotate-12">
                     <NextImage
                         src="/assets/maozinhas/UM_MeliMusic26Prancheta 6.png"
                         alt="Decor"
-                        width={200}
-                        height={200}
+                        width={180}
+                        height={180}
                         className="object-contain"
                     />
                 </div>
