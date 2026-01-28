@@ -298,14 +298,20 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                         {/* Developer Credit */}
                         <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium opacity-60 hover:opacity-100 transition-opacity">
                             <span>Desenvolvido por CAP Digital</span>
-                            <div className="relative w-8 h-8">
+                            <a
+                                href="https://capdigital.company"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="relative w-12 h-12 hover:scale-110 transition-transform"
+                                title="Visitar CAP Digital"
+                            >
                                 <NextImage
                                     src="/CAPCO_ORANGE_ENCAPSULATED.png"
                                     alt="CAP Digital"
                                     fill
                                     className="object-contain"
                                 />
-                            </div>
+                            </a>
                         </div>
                     </div>
                 </div>
