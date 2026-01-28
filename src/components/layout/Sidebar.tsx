@@ -121,6 +121,15 @@ export function Navbar() {
                     );
                 })}
             </div>
+            {/* Decorative Hand - Prancheta 14 */}
+            <div className="absolute -right-28 top-1/2 -translate-y-1/2 w-48 h-48 pointer-events-none -z-10 rotate-12 opacity-90">
+                <NextImage
+                    src="/assets/maozinhas/UM_MeliMusic26Prancheta 14.png"
+                    alt="Decor"
+                    fill
+                    className="object-contain"
+                />
+            </div>
         </motion.nav>
     );
 }
@@ -243,16 +252,7 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                     />
                 </div>
 
-                {/* Extra Right Top - Prancheta 14 */}
-                <div className="absolute top-[45px] left-1/2 ml-[290px] opacity-[0.25] rotate-12">
-                    <NextImage
-                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 14.png"
-                        alt="Decor"
-                        width={180}
-                        height={180}
-                        className="object-contain"
-                    />
-                </div>
+                {/* Extra Right Top - Prancheta 14 - MOVED TO NAVBAR */}
             </div>
 
             <Navbar />
