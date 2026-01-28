@@ -259,7 +259,7 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
             <MobileNav />
 
             {/* Main Content - Added padding top for navbar space */}
-            <main className="pt-32 pb-24 lg:pb-12">
+            <main className="pt-32 pb-24 lg:pb-12 relative z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.header
                         className="mb-8"
