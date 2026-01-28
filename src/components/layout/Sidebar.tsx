@@ -177,30 +177,57 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
         <div className="min-h-screen bg-gray-50/50 relative overflow-x-hidden">
             {/* Decorative Side Images */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-                <div className="absolute top-32 -left-12 opacity-[0.03] rotate-12">
+                {/* Top Left */}
+                <div className="absolute top-24 -left-16 opacity-[0.08] rotate-12">
                     <NextImage
                         src="/assets/maozinhas/UM_MeliMusic26Prancheta 1.png"
+                        alt="Decor"
+                        width={350}
+                        height={350}
+                        className="object-contain"
+                    />
+                </div>
+
+                {/* Middle Right - Highlighted Prancheta 10 */}
+                <div className="absolute top-1/3 -right-20 opacity-[0.1] -rotate-12">
+                    <NextImage
+                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 10.png"
+                        alt="Decor"
+                        width={450}
+                        height={450}
+                        className="object-contain"
+                    />
+                </div>
+
+                {/* Bottom Left */}
+                <div className="absolute bottom-1/4 -left-10 opacity-[0.08] rotate-45">
+                    <NextImage
+                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 12.png"
                         alt="Decor"
                         width={300}
                         height={300}
                         className="object-contain"
                     />
                 </div>
-                <div className="absolute top-96 -right-12 opacity-[0.03] -rotate-12">
+
+                {/* Top Right */}
+                <div className="absolute top-32 -right-12 opacity-[0.08] rotate-6">
                     <NextImage
                         src="/assets/maozinhas/UM_MeliMusic26Prancheta 3.png"
                         alt="Decor"
-                        width={400}
-                        height={400}
+                        width={280}
+                        height={280}
                         className="object-contain"
                     />
                 </div>
-                <div className="absolute bottom-32 -left-8 opacity-[0.03] rotate-45">
+
+                {/* Bottom Right */}
+                <div className="absolute -bottom-12 -right-12 opacity-[0.08] -rotate-6">
                     <NextImage
-                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 12.png"
+                        src="/assets/maozinhas/UM_MeliMusic26Prancheta 5.png"
                         alt="Decor"
-                        width={250}
-                        height={250}
+                        width={320}
+                        height={320}
                         className="object-contain"
                     />
                 </div>
