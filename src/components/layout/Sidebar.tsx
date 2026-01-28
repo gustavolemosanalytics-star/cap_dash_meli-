@@ -68,61 +68,65 @@ export function Navbar() {
     const pathname = usePathname();
 
     return (
-        <motion.nav
-            className="fixed top-6 left-1/2 z-50 hidden lg:flex items-center gap-1 bg-meli-blue/95 backdrop-blur-md shadow-xl shadow-meli-blue/20 border border-white/10 rounded-full px-2 py-2 pr-6"
+        <motion.div
+            className="fixed top-6 left-1/2 z-50 hidden lg:flex items-center justify-center pointer-events-none"
             initial={{ y: -100, x: "-50%", opacity: 0 }}
             animate={{ y: 0, x: "-50%", opacity: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
         >
-            {/* Logo Section */}
-            <div className="flex items-center gap-3 pr-6 pl-4 border-r border-white/10">
-                <div className="relative w-24 h-8">
-                    <NextImage
-                        src="/assets/UM_MeliMusic26Logo.png"
-                        alt="Meli Music Logo"
-                        fill
-                        className="object-contain"
-                        sizes="(max-width: 768px) 96px, 120px"
-                        priority
-                    />
+            {/* Visual Pill Container */}
+            <div className="flex items-center gap-1 bg-meli-blue/95 backdrop-blur-md shadow-xl shadow-meli-blue/20 border border-white/10 rounded-full px-2 py-2 pr-6 relative z-10 pointer-events-auto">
+                {/* Logo Section */}
+                <div className="flex items-center gap-3 pr-6 pl-4 border-r border-white/10">
+                    <div className="relative w-24 h-8">
+                        <NextImage
+                            src="/assets/UM_MeliMusic26Logo.png"
+                            alt="Meli Music Logo"
+                            fill
+                            className="object-contain"
+                            sizes="(max-width: 768px) 96px, 120px"
+                            priority
+                        />
+                    </div>
+                </div>
+
+                {/* Nav Items */}
+                <div className="flex items-center gap-1 pl-2">
+                    {navItems.map((item) => {
+                        const isActive = pathname === item.href;
+                        const Icon = item.icon;
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={cn(
+                                    'relative flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300',
+                                    isActive
+                                        ? 'text-meli-blue'
+                                        : 'text-gray-300 hover:text-white hover:bg-white/10'
+                                )}
+                            >
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="activeTab"
+                                        className="absolute inset-0 bg-white rounded-full shadow-md"
+                                        initial={false}
+                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                    />
+                                )}
+                                <span className="relative z-10 flex items-center gap-2 font-medium text-sm">
+                                    <Icon className={cn("w-4 h-4", isActive ? "text-meli-blue" : "text-meli-yellow")} />
+                                    {item.label}
+                                </span>
+                            </Link>
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* Nav Items */}
-            <div className="flex items-center gap-1 pl-2">
-                {navItems.map((item) => {
-                    const isActive = pathname === item.href;
-                    const Icon = item.icon;
-
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                'relative flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300',
-                                isActive
-                                    ? 'text-meli-blue'
-                                    : 'text-gray-300 hover:text-white hover:bg-white/10'
-                            )}
-                        >
-                            {isActive && (
-                                <motion.div
-                                    layoutId="activeTab"
-                                    className="absolute inset-0 bg-white rounded-full shadow-md"
-                                    initial={false}
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                />
-                            )}
-                            <span className="relative z-10 flex items-center gap-2 font-medium text-sm">
-                                <Icon className={cn("w-4 h-4", isActive ? "text-meli-blue" : "text-meli-yellow")} />
-                                {item.label}
-                            </span>
-                        </Link>
-                    );
-                })}
-            </div>
             {/* Decorative Hand - Prancheta 14 */}
-            <div className="absolute -right-28 top-1/2 -translate-y-1/2 w-48 h-48 pointer-events-none -z-10 rotate-12 opacity-90">
+            <div className="absolute -right-24 top-1/2 -translate-y-1/2 w-48 h-48 pointer-events-none z-0 rotate-12 opacity-90">
                 <NextImage
                     src="/assets/maozinhas/UM_MeliMusic26Prancheta 14.png"
                     alt="Decor"
@@ -130,7 +134,7 @@ export function Navbar() {
                     className="object-contain"
                 />
             </div>
-        </motion.nav>
+        </motion.div>
     );
 }
 
