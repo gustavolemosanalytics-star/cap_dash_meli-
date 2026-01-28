@@ -40,6 +40,7 @@ export interface AggregatedKPIs {
   cpc: number;
   cpm: number;
   roas: number;
+  costPerPurchase: number;
 }
 
 // Funnel step data

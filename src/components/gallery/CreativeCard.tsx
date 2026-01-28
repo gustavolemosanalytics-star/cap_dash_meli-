@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { CampaignData } from '@/types/campaign';
 import { formatNumber, formatCurrency, cn } from '@/lib/utils';
-import { Eye, MousePointerClick, ImageIcon, TrendingUp, DollarSign, Target } from 'lucide-react';
+import { Eye, MousePointerClick, ImageIcon, TrendingUp, DollarSign, Target, Video, ShoppingBag } from 'lucide-react';
 
 interface CreativeCardProps {
     creative: CampaignData;
@@ -23,6 +23,11 @@ export function CreativeCard({ creative, onClick, index = 0, highlightMetric }: 
     const roas = creative.spend > 0
         ? (creative.action_values_omni_purchase / creative.spend)
         : 0;
+
+    // Detect media type based on ad name
+    const isVideo = creative.ad_name.toLowerCase().includes('video') ||
+        creative.ad_name.toLowerCase().includes('reels') ||
+        creative.ad_name.toLowerCase().includes('stories');
 
     // Get highlight badge content based on active filter
     const getHighlightBadge = () => {
@@ -70,8 +75,8 @@ export function CreativeCard({ creative, onClick, index = 0, highlightMetric }: 
                 {/* Image type label */}
                 <div className="absolute top-2 left-2 z-10">
                     <span className="bg-white/90 backdrop-blur-sm text-xs font-medium text-meli-text px-2 py-1 rounded flex items-center gap-1">
-                        <ImageIcon className="w-3 h-3" />
-                        Image
+                        {isVideo ? <Video className="w-3 h-3" /> : <ImageIcon className="w-3 h-3" />}
+                        {isVideo ? 'Video' : 'Imagem'}
                     </span>
                 </div>
 
@@ -140,14 +145,14 @@ export function CreativeCard({ creative, onClick, index = 0, highlightMetric }: 
 
                 {/* Mini metrics */}
                 <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-3 text-meli-text-secondary">
-                        <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2 text-meli-text-secondary">
+                        <div className="flex items-center gap-1" title="Impressões">
                             <Eye className="w-3.5 h-3.5" />
                             <span>{formatNumber(creative.impressions)}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <MousePointerClick className="w-3.5 h-3.5" />
-                            <span>{formatNumber(creative.actions_link_click)}</span>
+                        <div className="flex items-center gap-1" title="Compras">
+                            <ShoppingBag className="w-3.5 h-3.5 text-meli-green" />
+                            <span className="font-semibold text-meli-green">{formatNumber(creative.actions_offsite_conversion_fb_pixel_purchase)}</span>
                         </div>
                     </div>
                     <div className="font-semibold text-meli-blue">

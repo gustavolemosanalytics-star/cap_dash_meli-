@@ -27,6 +27,7 @@ import { TrapezoidFunnel } from '@/components/dashboard/ConversionFunnel';
 import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
 import { PerformanceDemographics } from '@/components/dashboard/PerformanceDemographics';
 import { FunnelOverTimeChart } from '@/components/dashboard/FunnelOverTimeChart';
+import { AdSetTable } from '@/components/dashboard/AdSetTable';
 import { calculateKPIs, calculateFunnel, getUniqueCreatives } from '@/lib/sheets';
 
 interface DashboardContentProps {
@@ -186,6 +187,7 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
         return { from: thirtyDaysAgo, to: today };
     });
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+    const [activeChartTab, setActiveChartTab] = useState<'performance' | 'funnel'>('performance');
 
     // Filter data by date range
     const filteredData = useMemo(() => {
@@ -310,8 +312,8 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                 {/* Smart Analysis Card */}
                 <SmartAnalysisCard data={filteredData} kpis={kpis} />
 
-                {/* Top KPI row - 6 Cards (Investimento, Compras, CTR, CPC, ROAS, CPM) */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+                {/* Top KPI row - 8 Cards including Revenue and CPA */}
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
                     <KPICard
                         title="Investimento"
                         value={kpis.totalSpend}
@@ -320,10 +322,24 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                         color="default"
                     />
                     <KPICard
-                        title="Total de Compras"
+                        title="Receita"
+                        value={kpis.totalRevenue}
+                        formattedValue={formatCurrency(kpis.totalRevenue)}
+                        icon={DollarSign}
+                        color="success" // Highlight revenue
+                    />
+                    <KPICard
+                        title="Compras"
                         value={kpis.totalPurchases}
                         formattedValue={formatNumber(kpis.totalPurchases)}
                         icon={ShoppingBag}
+                        color="default"
+                    />
+                    <KPICard
+                        title="CPA (Custo/Compra)"
+                        value={kpis.costPerPurchase}
+                        formattedValue={formatCurrency(kpis.costPerPurchase)}
+                        icon={Target}
                         color="default"
                     />
                     <KPICard
@@ -356,29 +372,57 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                     />
                 </div>
 
-
-
-                {/* Middle: Performance Area Chart */}
+                {/* Combined Charts Section */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-bold text-meli-text">Performance ao Longo do Tempo</h3>
-                        <span className="text-xs text-meli-text-secondary bg-gray-100 px-3 py-1 rounded-full">
-                            Clique nas métricas para alternar a visualização
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                        <div className="flex items-center gap-4 bg-gray-100/50 p-1 rounded-xl w-fit">
+                            <button
+                                onClick={() => setActiveChartTab('performance')}
+                                className={cn(
+                                    "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300",
+                                    activeChartTab === 'performance'
+                                        ? "bg-white text-meli-blue shadow-sm"
+                                        : "text-gray-500 hover:text-meli-text"
+                                )}
+                            >
+                                Performance
+                            </button>
+                            <button
+                                onClick={() => setActiveChartTab('funnel')}
+                                className={cn(
+                                    "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300",
+                                    activeChartTab === 'funnel'
+                                        ? "bg-white text-meli-blue shadow-sm"
+                                        : "text-gray-500 hover:text-meli-text"
+                                )}
+                            >
+                                Evolução do Funil
+                            </button>
+                        </div>
+
+                        <span className="text-xs text-meli-text-secondary bg-gray-100 px-3 py-1 rounded-full hidden sm:block">
+                            {activeChartTab === 'performance'
+                                ? 'Acompanhe as principais métricas ao longo do tempo'
+                                : 'Visualize a conversão entre etapas do funil dia a dia'}
                         </span>
                     </div>
-                    <PerformanceChart data={filteredData} height={350} />
+
+                    <motion.div
+                        key={activeChartTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {activeChartTab === 'performance' ? (
+                            <PerformanceChart data={filteredData} height={350} />
+                        ) : (
+                            <FunnelOverTimeChart data={filteredData} height={350} />
+                        )}
+                    </motion.div>
                 </div>
 
-                {/* Middle 2: Funnel Evolution Chart */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-bold text-meli-text">Evolução do Funil</h3>
-                        <span className="text-xs text-meli-text-secondary bg-gray-100 px-3 py-1 rounded-full">
-                            Page Views, Carrinho, Checkout e Compras
-                        </span>
-                    </div>
-                    <FunnelOverTimeChart data={filteredData} height={350} />
-                </div>
+                {/* Ad Sets Table */}
+                <AdSetTable data={filteredData} />
 
                 {/* Bottom Section: Funnel (left) and Demographics (right) - symmetric layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

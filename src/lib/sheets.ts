@@ -101,6 +101,7 @@ export function calculateKPIs(data: CampaignData[]): AggregatedKPIs {
         cpc: totals.clicks > 0 ? totals.spend / totals.clicks : 0,
         cpm: totals.impressions > 0 ? (totals.spend / totals.impressions) * 1000 : 0,
         roas: totals.spend > 0 ? totals.revenue / totals.spend : 0,
+        costPerPurchase: totals.purchases > 0 ? totals.spend / totals.purchases : 0,
     };
 }
 
@@ -168,6 +169,36 @@ export function getUniqueSources(data: CampaignData[]): string[] {
 
 export function getUniqueCampaigns(data: CampaignData[]): string[] {
     return [...new Set(data.map(item => item.campaign))];
+}
+
+export function getUniqueAdSets(data: CampaignData[]): CampaignData[] {
+    const seen = new Map<string, CampaignData>();
+
+    data.forEach(item => {
+        const key = item.adset_name;
+        if (!key) return; // Skip empty adsets logic if necessary, but adset_name is required in type
+
+        if (!seen.has(key)) {
+            seen.set(key, { ...item });
+        } else {
+            // Aggregate metrics for same adset
+            const existing = seen.get(key)!;
+            seen.set(key, {
+                ...existing,
+                spend: existing.spend + item.spend,
+                impressions: existing.impressions + item.impressions,
+                actions_link_click: existing.actions_link_click + item.actions_link_click,
+                actions_landing_page_view: existing.actions_landing_page_view + item.actions_landing_page_view,
+                actions_add_to_cart: existing.actions_add_to_cart + item.actions_add_to_cart,
+                actions_initiate_checkout: existing.actions_initiate_checkout + item.actions_initiate_checkout,
+                actions_offsite_conversion_fb_pixel_purchase: existing.actions_offsite_conversion_fb_pixel_purchase + item.actions_offsite_conversion_fb_pixel_purchase,
+                actions_post_engagement: existing.actions_post_engagement + item.actions_post_engagement,
+                action_values_omni_purchase: existing.action_values_omni_purchase + item.action_values_omni_purchase,
+            });
+        }
+    });
+
+    return Array.from(seen.values());
 }
 
 export function getUniqueCreatives(data: CampaignData[]): CampaignData[] {
