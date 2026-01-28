@@ -312,64 +312,71 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                 {/* Smart Analysis Card */}
                 <SmartAnalysisCard data={filteredData} kpis={kpis} />
 
-                {/* Top KPI row - 8 Cards including Revenue and CPA */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-                    <KPICard
-                        title="Investimento"
-                        value={kpis.totalSpend}
-                        formattedValue={formatCurrency(kpis.totalSpend)}
-                        icon={DollarSign}
-                        color="default"
-                    />
-                    <KPICard
-                        title="Receita"
-                        value={kpis.totalRevenue}
-                        formattedValue={formatCurrency(kpis.totalRevenue)}
-                        icon={DollarSign}
-                        color="success" // Highlight revenue
-                    />
-                    <KPICard
-                        title="Compras"
-                        value={kpis.totalPurchases}
-                        formattedValue={formatNumber(kpis.totalPurchases)}
-                        icon={ShoppingBag}
-                        color="default"
-                    />
-                    <KPICard
-                        title="CPA (Custo/Compra)"
-                        value={kpis.costPerPurchase}
-                        formattedValue={formatCurrency(kpis.costPerPurchase)}
-                        icon={Target}
-                        color="default"
-                    />
-                    <KPICard
-                        title="CTR"
-                        value={kpis.ctr}
-                        formattedValue={`${formatDecimal(kpis.ctr)}%`}
-                        icon={Activity}
-                        color="default"
-                    />
-                    <KPICard
-                        title="CPC"
-                        value={kpis.cpc}
-                        formattedValue={formatCurrency(kpis.cpc)}
-                        icon={Target}
-                        color="default"
-                    />
-                    <KPICard
-                        title="ROAS"
-                        value={kpis.roas}
-                        formattedValue={`${formatDecimal(kpis.roas)}x`}
-                        icon={TrendingUp}
-                        color="default"
-                    />
-                    <KPICard
-                        title="CPM"
-                        value={kpis.cpm}
-                        formattedValue={formatCurrency(kpis.cpm)}
-                        icon={BarChart3}
-                        color="default"
-                    />
+                {/* Top KPI rows - 2 rows of 4 cards each */}
+                <div className="space-y-4">
+                    {/* Row 1: Primary Metrics */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <KPICard
+                            title="Investimento"
+                            value={kpis.totalSpend}
+                            formattedValue={formatCurrency(kpis.totalSpend)}
+                            icon={DollarSign}
+                            color="default"
+                        />
+                        <KPICard
+                            title="Receita"
+                            value={kpis.totalRevenue}
+                            formattedValue={formatCurrency(kpis.totalRevenue)}
+                            icon={DollarSign}
+                            color="success" // Highlight revenue
+                        />
+                        <KPICard
+                            title="Compras"
+                            value={kpis.totalPurchases}
+                            formattedValue={formatNumber(kpis.totalPurchases)}
+                            icon={ShoppingBag}
+                            color="default"
+                        />
+                        <KPICard
+                            title="CPA (Custo/Compra)"
+                            value={kpis.costPerPurchase}
+                            formattedValue={formatCurrency(kpis.costPerPurchase)}
+                            icon={Target}
+                            color="default"
+                        />
+                    </div>
+
+                    {/* Row 2: Secondary Metrics */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <KPICard
+                            title="CTR"
+                            value={kpis.ctr}
+                            formattedValue={`${formatDecimal(kpis.ctr)}%`}
+                            icon={Activity}
+                            color="default"
+                        />
+                        <KPICard
+                            title="CPC"
+                            value={kpis.cpc}
+                            formattedValue={formatCurrency(kpis.cpc)}
+                            icon={Target}
+                            color="default"
+                        />
+                        <KPICard
+                            title="ROAS"
+                            value={kpis.roas}
+                            formattedValue={`${formatDecimal(kpis.roas)}x`}
+                            icon={TrendingUp}
+                            color="default"
+                        />
+                        <KPICard
+                            title="CPM"
+                            value={kpis.cpm}
+                            formattedValue={formatCurrency(kpis.cpm)}
+                            icon={BarChart3}
+                            color="default"
+                        />
+                    </div>
                 </div>
 
                 {/* Combined Charts Section */}
