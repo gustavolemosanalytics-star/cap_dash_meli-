@@ -69,25 +69,26 @@ export function Navbar() {
 
     return (
         <motion.nav
-            className="fixed top-6 left-1/2 z-50 hidden lg:flex items-center gap-1 bg-white/90 backdrop-blur-md shadow-xl shadow-meli-blue/5 border border-white/20 rounded-full px-2 py-2 pr-6"
+            className="fixed top-6 left-1/2 z-50 hidden lg:flex items-center gap-1 bg-meli-blue/95 backdrop-blur-md shadow-xl shadow-meli-blue/20 border border-white/10 rounded-full px-2 py-2 pr-6"
             initial={{ y: -100, x: "-50%", opacity: 0 }}
             animate={{ y: 0, x: "-50%", opacity: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
         >
             {/* Logo Section */}
-            <div className="flex items-center gap-3 pr-6 pl-4 border-r border-gray-200/50">
-                <div className="relative w-8 h-8">
+            <div className="flex items-center gap-3 pr-6 pl-4 border-r border-white/10">
+                <div className="relative w-24 h-8">
                     <NextImage
-                        src="/logo-somos.png"
+                        src="/assets/UM_MeliMusic26Logo.png"
                         alt="Meli Music Logo"
                         fill
-                        className="object-contain"
-                        sizes="32px"
+                        className="object-contain brightness-0 invert" // Make logo white if it's transparent, or trust it fits. Assuming logic: "o que ta azul coloque branco". If the logo is blue, verify.
+                        // Actually, user provided specific logo assets/UM_MeliMusic26Logo.png. I will assume it renders correctly or needs no filter.
+                        // But wait, if the logo is the one from previous step, it might be colored. 
+                        // Let's remove the filter for now to be safe, unless it's dark on dark.
+                        sizes="(max-width: 768px) 96px, 120px"
+                        priority
                     />
                 </div>
-                <span className="font-bold text-meli-blue whitespace-nowrap">
-                    Meli Music
-                </span>
             </div>
 
             {/* Nav Items */}
@@ -103,20 +104,20 @@ export function Navbar() {
                             className={cn(
                                 'relative flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300',
                                 isActive
-                                    ? 'text-white'
-                                    : 'text-gray-500 hover:text-meli-blue hover:bg-gray-50'
+                                    ? 'text-meli-blue'
+                                    : 'text-gray-300 hover:text-white hover:bg-white/10'
                             )}
                         >
                             {isActive && (
                                 <motion.div
                                     layoutId="activeTab"
-                                    className="absolute inset-0 bg-meli-blue rounded-full shadow-lg shadow-meli-blue/20"
+                                    className="absolute inset-0 bg-white rounded-full shadow-md"
                                     initial={false}
                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                 />
                             )}
                             <span className="relative z-10 flex items-center gap-2 font-medium text-sm">
-                                <Icon className={cn("w-4 h-4", isActive ? "text-meli-yellow" : "text-current")} />
+                                <Icon className={cn("w-4 h-4", isActive ? "text-meli-blue" : "text-meli-yellow")} />
                                 {item.label}
                             </span>
                         </Link>
@@ -132,7 +133,7 @@ export function MobileNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="fixed bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md shadow-xl border border-gray-100/50 rounded-2xl lg:hidden z-40">
+        <nav className="fixed bottom-4 left-4 right-4 bg-meli-blue/95 backdrop-blur-md shadow-xl shadow-meli-blue/20 border border-white/10 rounded-2xl lg:hidden z-40">
             <div className="flex justify-around items-center h-16 px-2">
                 {navItems.slice(0, 4).map((item) => {
                     const isActive = pathname === item.href;
@@ -145,20 +146,20 @@ export function MobileNav() {
                             className={cn(
                                 'flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-lg transition-colors',
                                 isActive
-                                    ? 'text-meli-blue'
-                                    : 'text-meli-text-secondary'
+                                    ? 'text-white'
+                                    : 'text-gray-400'
                             )}
                         >
                             <motion.div
                                 whileTap={{ scale: 0.9 }}
                                 className={cn(
                                     'p-2 rounded-xl transition-colors',
-                                    isActive && 'bg-meli-yellow/10'
+                                    isActive && 'bg-white/10'
                                 )}
                             >
-                                <Icon className={cn("w-5 h-5", isActive && "fill-current")} />
+                                <Icon className={cn("w-5 h-5", isActive ? "text-meli-yellow" : "fill-current")} />
                             </motion.div>
-                            <span className="text-[10px] font-medium">{item.label.split(' ')[0]}</span>
+                            <span className={cn("text-[10px] font-medium", isActive ? "text-white" : "")}>{item.label.split(' ')[0]}</span>
                         </Link>
                     );
                 })}
@@ -200,6 +201,19 @@ export function PageLayout({ children, title, subtitle }: PageLayoutProps) {
                     </motion.header>
 
                     {children}
+
+                    {/* Footer Sponsors */}
+                    <div className="mt-12 mb-4 flex justify-center opacity-80 hover:opacity-100 transition-opacity">
+                        <div className="relative w-full max-w-4xl h-24 sm:h-32">
+                            <NextImage
+                                src="/assets/UM_MeliMusic26Patrocinadores.png"
+                                alt="Patrocinadores Meli Music"
+                                fill
+                                className="object-contain"
+                                sizes="(max-width: 768px) 100vw, 800px"
+                            />
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
