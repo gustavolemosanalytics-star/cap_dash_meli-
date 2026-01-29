@@ -15,7 +15,7 @@ import {
     ShoppingBag
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
@@ -183,20 +183,25 @@ function SmartAnalysisCard({ data, kpis }: { data: CampaignData[], kpis: Aggrega
 export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunnel }: DashboardContentProps) {
     const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
         const today = new Date();
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(today.getDate() - 30);
-        return { from: thirtyDaysAgo, to: today };
+        const thirtyDaysAgo = subDays(today, 30);
+        return {
+            from: startOfDay(thirtyDaysAgo),
+            to: endOfDay(today)
+        };
     });
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
     const [activeChartTab, setActiveChartTab] = useState<'performance' | 'funnel'>('performance');
 
     // Filter data by date range
     const filteredData = useMemo(() => {
-        if (!dateRange?.from || !dateRange?.to) return data;
+        if (!dateRange?.from) return data;
+
+        const from = startOfDay(dateRange.from);
+        const to = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
 
         return data.filter(item => {
             const itemDate = parseDate(item.date);
-            return itemDate >= dateRange.from! && itemDate <= dateRange.to!;
+            return itemDate >= from && itemDate <= to;
         });
     }, [data, dateRange]);
 
@@ -261,9 +266,10 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                                     <button
                                         onClick={() => {
                                             const today = new Date();
-                                            const sevenDaysAgo = new Date();
-                                            sevenDaysAgo.setDate(today.getDate() - 7);
-                                            setDateRange({ from: sevenDaysAgo, to: today });
+                                            setDateRange({
+                                                from: startOfDay(subDays(today, 7)),
+                                                to: endOfDay(today)
+                                            });
                                         }}
                                         className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                                     >
@@ -272,9 +278,10 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                                     <button
                                         onClick={() => {
                                             const today = new Date();
-                                            const fourteenDaysAgo = new Date();
-                                            fourteenDaysAgo.setDate(today.getDate() - 14);
-                                            setDateRange({ from: fourteenDaysAgo, to: today });
+                                            setDateRange({
+                                                from: startOfDay(subDays(today, 14)),
+                                                to: endOfDay(today)
+                                            });
                                         }}
                                         className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                                     >
@@ -283,9 +290,10 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                                     <button
                                         onClick={() => {
                                             const today = new Date();
-                                            const thirtyDaysAgo = new Date();
-                                            thirtyDaysAgo.setDate(today.getDate() - 30);
-                                            setDateRange({ from: thirtyDaysAgo, to: today });
+                                            setDateRange({
+                                                from: startOfDay(subDays(today, 30)),
+                                                to: endOfDay(today)
+                                            });
                                         }}
                                         className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                                     >
@@ -294,9 +302,10 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                                     <button
                                         onClick={() => {
                                             const today = new Date();
-                                            const sixtyDaysAgo = new Date();
-                                            sixtyDaysAgo.setDate(today.getDate() - 60);
-                                            setDateRange({ from: sixtyDaysAgo, to: today });
+                                            setDateRange({
+                                                from: startOfDay(subDays(today, 60)),
+                                                to: endOfDay(today)
+                                            });
                                         }}
                                         className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                                     >
