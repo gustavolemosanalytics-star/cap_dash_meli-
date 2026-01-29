@@ -8,7 +8,8 @@ import {
     MousePointerClick,
     Percent,
     TrendingUp,
-    Layers
+    Layers,
+    ShoppingBag
 } from 'lucide-react';
 import { CampaignData } from '@/types/campaign';
 import { getUniqueCreatives } from '@/lib/sheets';
@@ -21,13 +22,14 @@ interface CriativosContentProps {
     data: CampaignData[];
 }
 
-type FilterType = 'todos' | 'melhor_ctr' | 'melhor_cpm' | 'melhor_roas';
+type FilterType = 'todos' | 'melhor_ctr' | 'melhor_cpm' | 'melhor_roas' | 'melhor_vendas';
 
 const filterTabs: { id: FilterType; label: string; icon?: React.ReactNode }[] = [
     { id: 'todos', label: 'Todos', icon: <Layers className="w-4 h-4" /> },
     { id: 'melhor_ctr', label: 'Melhor CTR', icon: <TrendingUp className="w-4 h-4" /> },
     { id: 'melhor_cpm', label: 'Melhor CPM', icon: <MousePointerClick className="w-4 h-4" /> },
     { id: 'melhor_roas', label: 'Melhor ROAS', icon: <Percent className="w-4 h-4" /> },
+    { id: 'melhor_vendas', label: 'Melhor Vendas', icon: <ShoppingBag className="w-4 h-4" /> },
 ];
 
 export function CriativosContent({ data }: CriativosContentProps) {
@@ -76,6 +78,11 @@ export function CriativosContent({ data }: CriativosContentProps) {
                     const roasA = a.spend > 0 ? a.action_values_omni_purchase / a.spend : 0;
                     const roasB = b.spend > 0 ? b.action_values_omni_purchase / b.spend : 0;
                     return roasB - roasA;
+                });
+                break;
+            case 'melhor_vendas':
+                result.sort((a, b) => {
+                    return b.action_values_omni_purchase - a.action_values_omni_purchase;
                 });
                 break;
             default:
@@ -239,7 +246,8 @@ export function CriativosContent({ data }: CriativosContentProps) {
                                     activeFilter === 'melhor_ctr' ? 'ctr' :
                                         activeFilter === 'melhor_cpm' ? 'cpm' :
                                             activeFilter === 'melhor_roas' ? 'roas' :
-                                                null
+                                                activeFilter === 'melhor_vendas' ? 'sales' :
+                                                    null
                                 }
                             />
                         ))}

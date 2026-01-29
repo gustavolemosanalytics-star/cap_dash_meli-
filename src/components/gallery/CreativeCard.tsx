@@ -10,7 +10,7 @@ interface CreativeCardProps {
     creative: CampaignData;
     onClick: () => void;
     index?: number;
-    highlightMetric?: 'ctr' | 'cpm' | 'roas' | null;
+    highlightMetric?: 'ctr' | 'cpm' | 'roas' | 'sales' | null;
 }
 
 export function CreativeCard({ creative, onClick, index = 0, highlightMetric }: CreativeCardProps) {
@@ -52,6 +52,13 @@ export function CreativeCard({ creative, onClick, index = 0, highlightMetric }: 
                     label: 'ROAS',
                     value: `${roas.toFixed(2)}x`,
                     color: 'bg-gradient-to-r from-purple-500 to-pink-600'
+                };
+            case 'sales':
+                return {
+                    icon: ShoppingBag,
+                    label: 'Vendas',
+                    value: formatCurrency(creative.action_values_omni_purchase),
+                    color: 'bg-gradient-to-r from-orange-500 to-rose-600'
                 };
             default:
                 return null;
