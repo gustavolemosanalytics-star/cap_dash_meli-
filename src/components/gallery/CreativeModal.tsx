@@ -71,10 +71,11 @@ function ModalTrapezoidFunnel({
                 const widthPercent = 100 - (index * 12);
                 const isLast = index === steps.length - 1;
 
-                // Calculate conversion rate from previous step
-                const conversionRate = index > 0 && steps[index - 1].value > 0
-                    ? (step.value / steps[index - 1].value) * 100
-                    : 100;
+                // Calculate conversion rate TO the next step
+                const nextStep = steps[index + 1];
+                const conversionToNext = !isLast && nextStep && step.value > 0
+                    ? (nextStep.value / step.value) * 100
+                    : 0;
 
                 return (
                     <div key={step.name} className="w-full flex flex-col items-center">
@@ -106,9 +107,9 @@ function ModalTrapezoidFunnel({
                             <motion.div
                                 className={cn(
                                     'z-10 -my-1.5 px-2 py-0.5 rounded-full text-[8px] font-bold shadow-md border-2 border-white',
-                                    conversionRate >= 30
+                                    conversionToNext >= 30
                                         ? 'bg-green-500 text-white'
-                                        : conversionRate >= 10
+                                        : conversionToNext >= 10
                                             ? 'bg-amber-500 text-white'
                                             : 'bg-red-500 text-white'
                                 )}
@@ -116,7 +117,7 @@ function ModalTrapezoidFunnel({
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
                             >
-                                {conversionRate.toFixed(1)}%
+                                {conversionToNext.toFixed(1).replace('.', ',')}%
                             </motion.div>
                         )}
                     </div>
