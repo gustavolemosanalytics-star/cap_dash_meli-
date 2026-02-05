@@ -191,6 +191,7 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
     });
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
     const [activeChartTab, setActiveChartTab] = useState<'performance' | 'funnel'>('performance');
+    const [funnelFilter, setFunnelFilter] = useState<'all' | 'conversion' | 'reach'>('conversion');
 
     // Filter data by date range
     const filteredData = useMemo(() => {
@@ -205,9 +206,28 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
         });
     }, [data, dateRange]);
 
-    // Recalculate KPIs based on filtered data
+    // Recalculate KPIs based on filtered data (date range only)
     const kpis = useMemo(() => calculateKPIs(filteredData), [filteredData]);
-    const funnel = useMemo(() => calculateFunnel(filteredData), [filteredData]);
+
+    // Filter for Funnel based on campaign type
+    const funnelSteps = useMemo(() => {
+        let funnelData = filteredData;
+
+        if (funnelFilter === 'conversion') {
+            funnelData = filteredData.filter(item =>
+                item.campaign.toLowerCase().includes('convers') ||
+                item.campaign.toLowerCase().includes('conversion')
+            );
+        } else if (funnelFilter === 'reach') {
+            funnelData = filteredData.filter(item =>
+                item.campaign.toLowerCase().includes('alcance') ||
+                item.campaign.toLowerCase().includes('reach') ||
+                item.campaign.toLowerCase().includes('awareness')
+            );
+        }
+
+        return calculateFunnel(funnelData);
+    }, [filteredData, funnelFilter]);
 
     // Format date range display
     const dateRangeDisplay = useMemo(() => {
@@ -449,7 +469,11 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Funnel on the Left */}
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full">
-                        <TrapezoidFunnel steps={funnel} />
+                        <TrapezoidFunnel
+                            steps={funnelSteps}
+                            filter={funnelFilter}
+                            onFilterChange={setFunnelFilter}
+                        />
                     </div>
 
                     {/* Demographics on the Right */}

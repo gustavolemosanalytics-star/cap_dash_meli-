@@ -12,9 +12,11 @@ interface FunnelStep {
 
 interface TrapezoidFunnelProps {
     steps: FunnelStep[];
+    filter?: 'all' | 'conversion' | 'reach';
+    onFilterChange?: (filter: 'all' | 'conversion' | 'reach') => void;
 }
 
-export function TrapezoidFunnel({ steps }: TrapezoidFunnelProps) {
+export function TrapezoidFunnel({ steps, filter = 'all', onFilterChange }: TrapezoidFunnelProps) {
     // Colors for the funnel stages (top to bottom)
     const colors = [
         '#2D3277', // Dark blue - Impressões
@@ -27,7 +29,47 @@ export function TrapezoidFunnel({ steps }: TrapezoidFunnelProps) {
 
     return (
         <div className="space-y-3">
-            <h3 className="text-lg font-bold text-meli-text">Funil de Conversão</h3>
+            <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-bold text-meli-text">Funil de Conversão</h3>
+
+                {onFilterChange && (
+                    <div className="flex bg-gray-100/80 p-1 rounded-lg">
+                        <button
+                            onClick={() => onFilterChange('all')}
+                            className={cn(
+                                "px-3 py-1 text-xs font-semibold rounded-md transition-all",
+                                filter === 'all'
+                                    ? "bg-white text-meli-blue shadow-sm"
+                                    : "text-gray-500 hover:text-meli-text"
+                            )}
+                        >
+                            Todos
+                        </button>
+                        <button
+                            onClick={() => onFilterChange('conversion')}
+                            className={cn(
+                                "px-3 py-1 text-xs font-semibold rounded-md transition-all",
+                                filter === 'conversion'
+                                    ? "bg-white text-meli-blue shadow-sm"
+                                    : "text-gray-500 hover:text-meli-text"
+                            )}
+                        >
+                            Conversão
+                        </button>
+                        <button
+                            onClick={() => onFilterChange('reach')}
+                            className={cn(
+                                "px-3 py-1 text-xs font-semibold rounded-md transition-all",
+                                filter === 'reach'
+                                    ? "bg-white text-meli-blue shadow-sm"
+                                    : "text-gray-500 hover:text-meli-text"
+                            )}
+                        >
+                            Alcance
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {/* Real Funnel Shape */}
             <div className="flex flex-col items-center w-full">
