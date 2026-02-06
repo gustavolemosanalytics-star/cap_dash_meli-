@@ -12,11 +12,12 @@ interface FunnelStep {
 
 interface TrapezoidFunnelProps {
     steps: FunnelStep[];
-    filter?: 'all' | 'conversion' | 'reach';
-    onFilterChange?: (filter: 'all' | 'conversion' | 'reach') => void;
+    profiles?: string[];
+    selectedProfile?: string;
+    onProfileChange?: (profile: string) => void;
 }
 
-export function TrapezoidFunnel({ steps, filter = 'all', onFilterChange }: TrapezoidFunnelProps) {
+export function TrapezoidFunnel({ steps, profiles = [], selectedProfile = 'TODOS', onProfileChange }: TrapezoidFunnelProps) {
     // Colors for the funnel stages (top to bottom)
     const colors = [
         '#2D3277', // Dark blue - Impressões
@@ -29,44 +30,36 @@ export function TrapezoidFunnel({ steps, filter = 'all', onFilterChange }: Trape
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col gap-3 mb-2">
                 <h3 className="text-lg font-bold text-meli-text">Funil de Conversão</h3>
 
-                {onFilterChange && (
-                    <div className="flex bg-gray-100/80 p-1 rounded-lg">
+                {onProfileChange && profiles.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 bg-gray-100/80 p-1.5 rounded-lg">
                         <button
-                            onClick={() => onFilterChange('all')}
+                            onClick={() => onProfileChange('TODOS')}
                             className={cn(
-                                "px-3 py-1 text-xs font-semibold rounded-md transition-all",
-                                filter === 'all'
+                                "px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
+                                selectedProfile === 'TODOS'
                                     ? "bg-white text-meli-blue shadow-sm"
-                                    : "text-gray-500 hover:text-meli-text"
+                                    : "text-gray-500 hover:text-meli-text hover:bg-white/50"
                             )}
                         >
                             Todos
                         </button>
-                        <button
-                            onClick={() => onFilterChange('conversion')}
-                            className={cn(
-                                "px-3 py-1 text-xs font-semibold rounded-md transition-all",
-                                filter === 'conversion'
-                                    ? "bg-white text-meli-blue shadow-sm"
-                                    : "text-gray-500 hover:text-meli-text"
-                            )}
-                        >
-                            Conversão
-                        </button>
-                        <button
-                            onClick={() => onFilterChange('reach')}
-                            className={cn(
-                                "px-3 py-1 text-xs font-semibold rounded-md transition-all",
-                                filter === 'reach'
-                                    ? "bg-white text-meli-blue shadow-sm"
-                                    : "text-gray-500 hover:text-meli-text"
-                            )}
-                        >
-                            Alcance
-                        </button>
+                        {profiles.map((profile) => (
+                            <button
+                                key={profile}
+                                onClick={() => onProfileChange(profile)}
+                                className={cn(
+                                    "px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
+                                    selectedProfile === profile
+                                        ? "bg-white text-meli-blue shadow-sm"
+                                        : "text-gray-500 hover:text-meli-text hover:bg-white/50"
+                                )}
+                            >
+                                {profile}
+                            </button>
+                        ))}
                     </div>
                 )}
             </div>

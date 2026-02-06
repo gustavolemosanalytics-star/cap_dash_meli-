@@ -191,7 +191,7 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
     });
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
     const [activeChartTab, setActiveChartTab] = useState<'performance' | 'funnel'>('performance');
-    const [funnelFilter, setFunnelFilter] = useState<'all' | 'conversion' | 'reach'>('conversion');
+    const [selectedProfile, setSelectedProfile] = useState<string>('TODOS');
 
     // Filter data by date range
     const filteredData = useMemo(() => {
@@ -209,25 +209,41 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
     // Recalculate KPIs based on filtered data (date range only)
     const kpis = useMemo(() => calculateKPIs(filteredData), [filteredData]);
 
-    // Filter for Funnel based on campaign type
-    const funnelSteps = useMemo(() => {
-        let funnelData = filteredData;
+    // Get conversion campaigns and extract unique profiles
+    const { conversionData, profiles } = useMemo(() => {
+        // Filter only CONVERSÃO campaigns
+        const conversionCampaigns = filteredData.filter(item =>
+            item.campaign.toUpperCase().includes('CONVERSÃO')
+        );
 
-        if (funnelFilter === 'conversion') {
-            funnelData = filteredData.filter(item =>
-                item.campaign.toLowerCase().includes('convers') ||
-                item.campaign.toLowerCase().includes('conversion')
-            );
-        } else if (funnelFilter === 'reach') {
-            funnelData = filteredData.filter(item =>
-                item.campaign.toLowerCase().includes('alcance') ||
-                item.campaign.toLowerCase().includes('reach') ||
-                item.campaign.toLowerCase().includes('awareness')
+        // Extract unique profiles from campaign names
+        // Pattern: [PERFIL XXXXX] - extracts XXXXX
+        const profileSet = new Set<string>();
+        conversionCampaigns.forEach(item => {
+            const match = item.campaign.match(/\[PERFIL\s+([^\]]+)\]/i);
+            if (match && match[1]) {
+                profileSet.add(match[1].trim().toUpperCase());
+            }
+        });
+
+        return {
+            conversionData: conversionCampaigns,
+            profiles: Array.from(profileSet).sort()
+        };
+    }, [filteredData]);
+
+    // Filter for Funnel based on selected profile
+    const funnelSteps = useMemo(() => {
+        let funnelData = conversionData;
+
+        if (selectedProfile !== 'TODOS') {
+            funnelData = conversionData.filter(item =>
+                item.campaign.toUpperCase().includes(`[PERFIL ${selectedProfile}]`)
             );
         }
 
         return calculateFunnel(funnelData);
-    }, [filteredData, funnelFilter]);
+    }, [conversionData, selectedProfile]);
 
     // Format date range display
     const dateRangeDisplay = useMemo(() => {
@@ -471,8 +487,9 @@ export function DashboardContent({ data, kpis: initialKpis, funnel: initialFunne
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full">
                         <TrapezoidFunnel
                             steps={funnelSteps}
-                            filter={funnelFilter}
-                            onFilterChange={setFunnelFilter}
+                            profiles={profiles}
+                            selectedProfile={selectedProfile}
+                            onProfileChange={setSelectedProfile}
                         />
                     </div>
 
